@@ -1,0 +1,32 @@
+# Instagram – Documentation
+
+## Create an Instagram app
+
+First of all you have to create the Instagram app. Simply go to the [developer interface](https://www.instagram.com/developer/clients/manage/)
+and `Register a New Client`. Fill in the necessary data and enter your domain name + `/contao/main.php` in the 
+`Valid redirect URIs` field.
+
+![](images/instagram-1.png)
+
+Once the app is created, copy the *Client ID* and *Client Secret* keys to your clipboard .
+
+
+## Create a frontend module
+
+Now go to the Contao backend and create the `Instagram` front end module. Fill in the necessary data and save the record.
+
+**Note:** be sure to check the `Request access token` box!
+
+![](images/preview.png)
+
+If you have configured your app properly, you should now see the screen prompting you for the authorization.
+Click the green button to authorize yourself for your app and you should be taken back to the Contao backend.
+
+![](images/instagram-2.png)
+
+Please ensure that the `Instagram access token` is now filled in. You can now safely add the module to the page.
+
+
+## About errors
+
+If at some point the extension does not work make sure to check the system logs.
