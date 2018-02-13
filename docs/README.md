@@ -10,6 +10,10 @@ and `Register a New Client`. Fill in the necessary data and enter your domain na
 
 Once the app is created, copy the *Client ID* and *Client Secret* keys to your clipboard .
 
+### Contao 4
+
+If you are using Contao 4, the `Valid redirect URIs` field needs to be filled with your domain name + `/contao` (_without_ `/main.php`) instead.
+
 
 ## Create a frontend module
 
