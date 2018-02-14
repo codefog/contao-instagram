@@ -14,6 +14,8 @@ Once the app is created, copy the *Client ID* and *Client Secret* keys to your c
 
 If you are using Contao 4, the `Valid redirect URIs` field needs to be filled with your domain name + `/contao` (_without_ `/main.php`) instead.
 
+For example: `http://domain.tld/contao`
+
 
 ## Create a frontend module
 
