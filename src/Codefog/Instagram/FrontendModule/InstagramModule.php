@@ -88,7 +88,7 @@ class InstagramModule extends Module
      */
     private function fetchFeedItems()
     {
-        $response = $this->sendRequest(sprintf('https://api.instagram.com/v1/users/self/media/recent', $userId), ['count' => $this->numberOfItems]);
+        $response = $this->sendRequest('https://api.instagram.com/v1/users/self/media/recent', ['count' => $this->numberOfItems]);
 
         if ($response === null) {
             return [];
@@ -97,7 +97,6 @@ class InstagramModule extends Module
         return $response['data'];
     }
 
-   
     /**
      * Send the request to Instagram
      *
