@@ -88,11 +88,7 @@ class InstagramModule extends Module
      */
     private function fetchFeedItems()
     {
-        if (($userId = $this->fetchUserId()) === null) {
-            return [];
-        }
-
-        $response = $this->sendRequest(sprintf('https://api.instagram.com/v1/users/%s/media/recent', $userId), ['count' => $this->numberOfItems]);
+        $response = $this->sendRequest(sprintf('https://api.instagram.com/v1/users/self/media/recent', $userId), ['count' => $this->numberOfItems]);
 
         if ($response === null) {
             return [];
@@ -101,22 +97,7 @@ class InstagramModule extends Module
         return $response['data'];
     }
 
-    /**
-     * Fetch the user ID from Instagram
-     *
-     * @return null
-     */
-    private function fetchUserId()
-    {
-        $response = $this->sendRequest('https://api.instagram.com/v1/users/search', ['q' => $this->cfg_instagramUser, 'count' => 1]);
-
-        if ($response === null) {
-            return null;
-        }
-
-        return $response['data'][0]['id'];
-    }
-
+   
     /**
      * Send the request to Instagram
      *
