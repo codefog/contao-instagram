@@ -17,4 +17,13 @@ $GLOBALS['TL_LANG']['tl_module']['cfg_instagramClientId'] = ['Instagram client I
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramClientSecret'] = ['Instagram client secret', 'Please enter the Instagram client secret.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramAccessToken'] = ['Instagram access token', 'This is an auto-generated value that will be filled in when you submit the form.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramRequestToken'] = ['Request access token', 'Check this box and save the record to request the access token.'];
-$GLOBALS['TL_LANG']['tl_module']['cfg_instagramUser'] = ['Instagram user', 'Please enter the Instagram user.'];
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramEndpoint'] = ['Instagram endpoint', 'Here you can choose the Instagram endpoint.'];
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramTag'] = ['Instagram tag name', 'Please enter the Instagram tag name.'];
+
+/**
+ * Reference
+ */
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramEndpointRef'] = [
+    'user' => 'User (@self)',
+    'tag' => 'Tag (#hashtag)'
+];

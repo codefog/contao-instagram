@@ -53,6 +53,9 @@ class InstagramModule extends Module
             return '';
         }
 
+        // Backwards compatibility
+        $this->cfg_instagramEndpoint = $this->cfg_instagramEndpoint ?: 'user';
+
         return parent::generate();
     }
 
@@ -65,20 +68,19 @@ class InstagramModule extends Module
     }
 
     /**
-     * Get the feed items from cache
+     * Get the cache key
      *
-     * @return array
+     * @return string
      */
-    private function getFeedItems()
+    protected function getCacheKey()
     {
-        $cacheFile = TL_ROOT . '/system/tmp/' . sprintf('%s.json', substr(md5($this->cfg_instagramAccessToken), 0, 8));
-        $expires = time() - $this->rss_cache;
+        $chunks = [$this->cfg_instagramAccessToken, $this->cfg_instagramEndpoint, $this->numberOfItems];
 
-        if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
-            file_put_contents($cacheFile, json_encode($this->fetchFeedItems()));
+        if ($this->cfg_instagramEndpoint === 'tag') {
+            $chunks[] = $this->cfg_instagramTag;
         }
 
-        return json_decode(file_get_contents($cacheFile), true);
+        return substr(md5(implode('-', $chunks)), 0, 8);
     }
 
     /**
@@ -86,15 +88,43 @@ class InstagramModule extends Module
      *
      * @return array
      */
-    private function fetchFeedItems()
+    protected function fetchFeedItems()
     {
-        $response = $this->sendRequest('https://api.instagram.com/v1/users/self/media/recent', ['count' => $this->numberOfItems]);
+        switch ($this->cfg_instagramEndpoint) {
+            case 'user':
+                $endpoint = 'https://api.instagram.com/v1/users/self/media/recent';
+                break;
+            case 'tag':
+                $endpoint = sprintf('https://api.instagram.com/v1/tags/%s/media/recent', $this->cfg_instagramTag);
+                break;
+            default:
+                return [];
+        }
+
+        $response = $this->sendRequest($endpoint, ['count' => $this->numberOfItems]);
 
         if ($response === null) {
             return [];
         }
 
         return $response['data'];
+    }
+
+    /**
+     * Get the feed items from cache
+     *
+     * @return array
+     */
+    private function getFeedItems()
+    {
+        $cacheFile = TL_ROOT . '/system/tmp/' . sprintf('%s.json', $this->getCacheKey());
+        $expires = time() - $this->rss_cache;
+
+        if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
+            file_put_contents($cacheFile, json_encode($this->fetchFeedItems()));
+        }
+
+        return json_decode(file_get_contents($cacheFile), true);
     }
 
     /**
