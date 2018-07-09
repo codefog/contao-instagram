@@ -4,8 +4,12 @@
 
 <?php foreach ($this->items as $item): ?>
     <div class="item">
-        <a href="<?= specialchars($item['link']) ?>" title="<?= specialchars($item['caption']['text']) ?>" target="_blank">
-            <img src="<?= $item['images']['standard_resolution']['url'] ?>" alt="<?= specialchars($item['caption']['text']) ?>">
+        <a href="<?= specialchars($item['link']) ?>" target="_blank"<?php if ($item['caption']['text']): ?> title="<?= specialchars($item['caption']['text']) ?>"<?php endif; ?>>
+            <?php if ($item['contao']['picture']): ?>
+                <?php $this->insert('picture_default', $item['contao']['picture']->picture) ?>
+            <?php else: ?>
+                <img src="<?= $item['images']['standard_resolution']['url'] ?>" alt="<?= specialchars($item['caption']['text']) ?>">
+            <?php endif; ?>
         </a>
     </div>
 <?php endforeach; ?>

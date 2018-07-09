@@ -21,9 +21,11 @@ $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = ['Codefog\Ins
  */
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['cfg_instagramEndpoint_user'] = '';
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['cfg_instagramEndpoint_tag'] = 'cfg_instagramTag';
+$GLOBALS['TL_DCA']['tl_module']['subpalettes']['cfg_instagramStoreFiles'] = 'cfg_instagramStoreFolder,imgSize';
 
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'cfg_instagramEndpoint';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramClientId,cfg_instagramClientSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,cfg_instagramEndpoint,numberOfItems,rss_cache;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'cfg_instagramStoreFiles';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramClientId,cfg_instagramClientSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,rss_cache,cfg_instagramEndpoint,cfg_instagramStoreFiles;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 /**
  * Add fields
@@ -79,4 +81,20 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramTag'] = [
     'inputType' => 'text',
     'eval' => ['mandatory' => true, 'maxlength' => 255, 'tl_class' => 'clr'],
     'sql' => "varchar(255) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramStoreFiles'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramStoreFiles'],
+    'exclude' => true,
+    'inputType' => 'checkbox',
+    'eval' => ['submitOnChange' => true, 'tl_class' => 'clr'],
+    'sql' => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramStoreFolder'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramStoreFolder'],
+    'exclude' => true,
+    'inputType' => 'fileTree',
+    'eval' => ['mandatory' => true, 'fieldType' => 'radio', 'tl_class' => 'clr'],
+    'sql' => "binary(16) NULL",
 ];

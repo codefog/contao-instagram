@@ -13,7 +13,11 @@
 namespace Codefog\Instagram\FrontendModule;
 
 use Contao\BackendTemplate;
+use Contao\Controller;
+use Contao\File;
+use Contao\FilesModel;
 use Contao\Module;
+use Contao\StringUtil;
 use Contao\System;
 
 class InstagramModule extends Module
@@ -64,7 +68,33 @@ class InstagramModule extends Module
      */
     protected function compile()
     {
-        $this->Template->items = $this->items;
+        $this->Template->items = $this->generateItems();
+    }
+
+    /**
+     * Generate the items
+     *
+     * @return array
+     */
+    protected function generateItems()
+    {
+        $items = $this->items;
+
+        foreach ($items as &$item) {
+            // Skip the items that are not local Contao files
+            if (!isset($item['contao']['uuid'])
+                || ($fileModel = FilesModel::findByPk($item['contao']['uuid'])) === null
+                || !is_file(TL_ROOT . '/'. $fileModel->path)
+            ) {
+                continue;
+            }
+
+            $helper = new \stdClass();
+            Controller::addImageToTemplate($helper, ['singleSRC' => $fileModel->path, 'size' => $this->imgSize]);
+            $item['contao']['picture'] = $helper;
+        }
+
+        return $items;
     }
 
     /**
@@ -107,7 +137,56 @@ class InstagramModule extends Module
             return [];
         }
 
-        return $response['data'];
+        $data = $response['data'];
+
+        // Store the files locally
+        if ($this->cfg_instagramStoreFiles) {
+            $data = $this->storeMediaFiles($data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Store the media files locally
+     *
+     * @param array $data
+     *
+     * @return array
+     *
+     * @throws \RuntimeException
+     */
+    private function storeMediaFiles(array $data)
+    {
+        if (($folderModel = FilesModel::findByPk($this->cfg_instagramStoreFolder)) === null || !is_dir(TL_ROOT . '/' . $folderModel->path)) {
+            throw new \RuntimeException('The target folder does not exist');
+        }
+
+        foreach ($data as &$item) {
+            $url = $item['images']['standard_resolution']['url'];
+            $extension = pathinfo(explode('?', $url)[0], PATHINFO_EXTENSION);
+            $target = sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension);
+
+            // Download the image
+            $ch = curl_init();
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_URL => $url]);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            // Save the image and add sync the database
+            if ($response !== false) {
+                $file = new File($target);
+                $file->write($response);
+                $file->close();
+
+                // Store the UUID in cache
+                if ($file->exists()) {
+                    $item['contao']['uuid'] = StringUtil::binToUuid($file->getModel()->uuid);
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**

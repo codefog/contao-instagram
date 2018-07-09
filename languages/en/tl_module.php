@@ -19,6 +19,8 @@ $GLOBALS['TL_LANG']['tl_module']['cfg_instagramAccessToken'] = ['Instagram acces
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramRequestToken'] = ['Request access token', 'Check this box and save the record to request the access token.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramEndpoint'] = ['Instagram endpoint', 'Here you can choose the Instagram endpoint.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramTag'] = ['Instagram tag name', 'Please enter the Instagram tag name.'];
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramStoreFiles'] = ['Store Instagram files', 'Store the Instagram files on locally.'];
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramStoreFolder'] = ['Instagram store folder', 'Please choose the Instagram store folder.'];
 
 /**
  * Reference
