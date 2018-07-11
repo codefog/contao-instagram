@@ -69,6 +69,7 @@ class InstagramModule extends Module
     protected function compile()
     {
         $this->Template->items = $this->generateItems();
+        $this->Template->user = $this->getUserData();
     }
 
     /**
@@ -98,27 +99,27 @@ class InstagramModule extends Module
     }
 
     /**
-     * Get the cache key
-     *
-     * @return string
-     */
-    protected function getCacheKey()
-    {
-        $chunks = [$this->cfg_instagramAccessToken, $this->cfg_instagramEndpoint, $this->numberOfItems];
-
-        if ($this->cfg_instagramEndpoint === 'tag') {
-            $chunks[] = $this->cfg_instagramTag;
-        }
-
-        return substr(md5(implode('-', $chunks)), 0, 8);
-    }
-
-    /**
-     * Fetch the feed items from Instagram
+     * Get the user data from Instagram
      *
      * @return array
      */
-    protected function fetchFeedItems()
+    protected function getUserData()
+    {
+        $response = $this->sendRequest('https://api.instagram.com/v1/users/self');
+
+        if ($response === null) {
+            return [];
+        }
+
+        return $response['data'];
+    }
+
+    /**
+     * Get the feed items from Instagram
+     *
+     * @return array
+     */
+    protected function getFeedItems()
     {
         switch ($this->cfg_instagramEndpoint) {
             case 'user':
@@ -190,34 +191,38 @@ class InstagramModule extends Module
     }
 
     /**
-     * Get the feed items from cache
+     * Send and cache the request to Instagram
+     *
+     * @param string $url
+     * @param array  $data
      *
      * @return array
      */
-    private function getFeedItems()
+    protected function sendRequest($url, array $data = [])
     {
-        $cacheFile = TL_ROOT . '/system/tmp/' . sprintf('%s.json', $this->getCacheKey());
+        $data['access_token'] = $this->cfg_instagramAccessToken;
+
+        $cacheKey = substr(md5($url . '|' . implode('-', $data)), 0, 8);
+        $cacheFile = TL_ROOT . '/system/tmp/' . sprintf('%s.json', $cacheKey);
         $expires = time() - $this->rss_cache;
 
         if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
-            file_put_contents($cacheFile, json_encode($this->fetchFeedItems()));
+            file_put_contents($cacheFile, json_encode($this->executeRequest($url, $data)));
         }
 
         return json_decode(file_get_contents($cacheFile), true);
     }
 
     /**
-     * Send the request to Instagram
+     * Execute the request to Instagram
      *
      * @param string $url
      * @param array  $data
      *
      * @return array|null
      */
-    private function sendRequest($url, array $data)
+    private function executeRequest($url, array $data = [])
     {
-        $data['access_token'] = $this->cfg_instagramAccessToken;
-
         $ch = curl_init();
 
         curl_setopt_array($ch, [
