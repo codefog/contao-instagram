@@ -3,7 +3,7 @@
 ## Create an Instagram app
 
 First of all you have to create the Instagram app. Simply go to the [developer interface](https://www.instagram.com/developer/clients/manage/)
-and `Register a New Client`. Fill in the necessary data and enter your domain name + `/contao/main.php` in the 
+and `Register a New Client`. Fill in the necessary data and enter your domain name + `/contao/main.php` in the
 `Valid redirect URIs` field.
 
 ![](images/instagram-1.png)
@@ -31,6 +31,18 @@ Click the green button to authorize yourself for your app and you should be take
 ![](images/instagram-2.png)
 
 Please ensure that the `Instagram access token` is now filled in. You can now safely add the module to the page.
+
+
+## Template data
+
+The displayed template data out of box is very simple, as only the images are displayed. If you need more information,
+you should check out the `$this->items` and `$this->user` variables.
+
+You can do that by dumping the variables inside `mod_cfg_instagram.html` template:
+
+```php
+<?php $this->showTemplateVars(); ?>
+```
 
 
 ## About errors
