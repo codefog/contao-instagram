@@ -38,7 +38,7 @@ Please ensure that the `Instagram access token` is now filled in. You can now sa
 The displayed template data out of box is very simple, as only the images are displayed. If you need more information,
 you should check out the `$this->items` and `$this->user` variables.
 
-You can do that by dumping the variables inside `mod_cfg_instagram.html` template:
+You can do that by dumping the variables inside `mod_cfg_instagram.html5` template:
 
 ```php
 <?php $this->showTemplateVars(); ?>
