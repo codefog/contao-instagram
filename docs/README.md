@@ -45,6 +45,15 @@ You can do that by dumping the variables inside `mod_cfg_instagram.html` templat
 ```
 
 
+## Data restrictions
+
+Before you report any bugs regarding the missing Instagram feed data, be sure that you have read the official
+documentation that contains information about the data you can obtain from the API:
+
+1. https://www.instagram.com/developer/authorization/
+2. https://www.instagram.com/developer/review/
+
+
 ## About errors
 
 If at some point the extension does not work make sure to check the system logs.
