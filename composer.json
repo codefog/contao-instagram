@@ -16,10 +16,10 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "contao/core-bundle":"~3.5 || ~4.1",
+        "php": "^5.6||^7.0",
+        "contao/core-bundle":"^3.5 || ^4.4",
         "contao-community-alliance/composer-plugin":"^2.4.1 || ~3.0",
-        "codefog/contao-haste": "~4.17"
+        "codefog/contao-haste": "^4.17"
     },
     "conflict": {
         "contao-legacy/cfg_instagram": "*"

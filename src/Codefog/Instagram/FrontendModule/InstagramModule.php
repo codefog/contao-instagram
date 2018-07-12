@@ -13,7 +13,11 @@
 namespace Codefog\Instagram\FrontendModule;
 
 use Contao\BackendTemplate;
+use Contao\Controller;
+use Contao\File;
+use Contao\FilesModel;
 use Contao\Module;
+use Contao\StringUtil;
 use Contao\System;
 
 class InstagramModule extends Module
@@ -53,6 +57,9 @@ class InstagramModule extends Module
             return '';
         }
 
+        // Backwards compatibility
+        $this->cfg_instagramEndpoint = $this->cfg_instagramEndpoint ?: 'user';
+
         return parent::generate();
     }
 
@@ -61,34 +68,44 @@ class InstagramModule extends Module
      */
     protected function compile()
     {
-        $this->Template->items = $this->items;
+        $this->Template->items = $this->generateItems();
+        $this->Template->user = $this->getUserData();
     }
 
     /**
-     * Get the feed items from cache
+     * Generate the items
      *
      * @return array
      */
-    private function getFeedItems()
+    protected function generateItems()
     {
-        $cacheFile = TL_ROOT . '/system/tmp/' . sprintf('%s.json', substr(md5($this->cfg_instagramAccessToken), 0, 8));
-        $expires = time() - $this->rss_cache;
+        $items = $this->items;
 
-        if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
-            file_put_contents($cacheFile, json_encode($this->fetchFeedItems()));
+        foreach ($items as &$item) {
+            // Skip the items that are not local Contao files
+            if (!isset($item['contao']['uuid'])
+                || ($fileModel = FilesModel::findByPk($item['contao']['uuid'])) === null
+                || !is_file(TL_ROOT . '/'. $fileModel->path)
+            ) {
+                continue;
+            }
+
+            $helper = new \stdClass();
+            Controller::addImageToTemplate($helper, ['singleSRC' => $fileModel->path, 'size' => $this->imgSize]);
+            $item['contao']['picture'] = $helper;
         }
 
-        return json_decode(file_get_contents($cacheFile), true);
+        return $items;
     }
 
     /**
-     * Fetch the feed items from Instagram
+     * Get the user data from Instagram
      *
      * @return array
      */
-    private function fetchFeedItems()
+    protected function getUserData()
     {
-        $response = $this->sendRequest('https://api.instagram.com/v1/users/self/media/recent', ['count' => $this->numberOfItems]);
+        $response = $this->sendRequest('https://api.instagram.com/v1/users/self');
 
         if ($response === null) {
             return [];
@@ -98,17 +115,114 @@ class InstagramModule extends Module
     }
 
     /**
-     * Send the request to Instagram
+     * Get the feed items from Instagram
+     *
+     * @return array
+     */
+    protected function getFeedItems()
+    {
+        switch ($this->cfg_instagramEndpoint) {
+            case 'user':
+                $endpoint = 'https://api.instagram.com/v1/users/self/media/recent';
+                break;
+            case 'tag':
+                $endpoint = sprintf('https://api.instagram.com/v1/tags/%s/media/recent', $this->cfg_instagramTag);
+                break;
+            default:
+                return [];
+        }
+
+        $response = $this->sendRequest($endpoint, ['count' => $this->numberOfItems]);
+
+        if ($response === null) {
+            return [];
+        }
+
+        $data = $response['data'];
+
+        // Store the files locally
+        if ($this->cfg_instagramStoreFiles) {
+            $data = $this->storeMediaFiles($data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Store the media files locally
+     *
+     * @param array $data
+     *
+     * @return array
+     *
+     * @throws \RuntimeException
+     */
+    private function storeMediaFiles(array $data)
+    {
+        if (($folderModel = FilesModel::findByPk($this->cfg_instagramStoreFolder)) === null || !is_dir(TL_ROOT . '/' . $folderModel->path)) {
+            throw new \RuntimeException('The target folder does not exist');
+        }
+
+        foreach ($data as &$item) {
+            $url = $item['images']['standard_resolution']['url'];
+            $extension = pathinfo(explode('?', $url)[0], PATHINFO_EXTENSION);
+            $target = sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension);
+
+            // Download the image
+            $ch = curl_init();
+            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_URL => $url]);
+            $response = curl_exec($ch);
+            curl_close($ch);
+
+            // Save the image and add sync the database
+            if ($response !== false) {
+                $file = new File($target);
+                $file->write($response);
+                $file->close();
+
+                // Store the UUID in cache
+                if ($file->exists()) {
+                    $item['contao']['uuid'] = StringUtil::binToUuid($file->getModel()->uuid);
+                }
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Send and cache the request to Instagram
+     *
+     * @param string $url
+     * @param array  $data
+     *
+     * @return array
+     */
+    protected function sendRequest($url, array $data = [])
+    {
+        $data['access_token'] = $this->cfg_instagramAccessToken;
+
+        $cacheKey = substr(md5($url . '|' . implode('-', $data)), 0, 8);
+        $cacheFile = TL_ROOT . '/system/tmp/' . sprintf('%s.json', $cacheKey);
+        $expires = time() - $this->rss_cache;
+
+        if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
+            file_put_contents($cacheFile, json_encode($this->executeRequest($url, $data)));
+        }
+
+        return json_decode(file_get_contents($cacheFile), true);
+    }
+
+    /**
+     * Execute the request to Instagram
      *
      * @param string $url
      * @param array  $data
      *
      * @return array|null
      */
-    private function sendRequest($url, array $data)
+    private function executeRequest($url, array $data = [])
     {
-        $data['access_token'] = $this->cfg_instagramAccessToken;
-
         $ch = curl_init();
 
         curl_setopt_array($ch, [

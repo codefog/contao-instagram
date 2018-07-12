@@ -17,4 +17,3 @@ $GLOBALS['TL_LANG']['tl_module']['cfg_instagramClientId'] = ['Instagram Client I
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramClientSecret'] = ['Instagram Client Secret', 'Bitte geben Sie das Instagram Client Secret ein.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramAccessToken'] = ['Instagram Access Token', 'Dies ist ein automatich erzeugter Wert, welcher beim Abschicken des Formulars generiert wird.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramRequestToken'] = ['Access Token anfordern', 'Aktivieren Sie diese Option um einen neuen Instagram Access Token anzufordern.'];
-$GLOBALS['TL_LANG']['tl_module']['cfg_instagramUser'] = ['Instagram Benutzer', 'Bitte geben Sie den Instagram Benutzer ein.'];
