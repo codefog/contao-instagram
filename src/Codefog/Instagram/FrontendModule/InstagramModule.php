@@ -166,24 +166,25 @@ class InstagramModule extends Module
         foreach ($data as &$item) {
             $url = $item['images']['standard_resolution']['url'];
             $extension = pathinfo(explode('?', $url)[0], PATHINFO_EXTENSION);
-            $target = sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension);
+            $file = new File(sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension));
 
             // Download the image
-            $ch = curl_init();
-            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_URL => $url]);
-            $response = curl_exec($ch);
-            curl_close($ch);
+            if (!$file->exists()) {
+                $ch = curl_init();
+                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_URL => $url]);
+                $response = curl_exec($ch);
+                curl_close($ch);
 
-            // Save the image and add sync the database
-            if ($response !== false) {
-                $file = new File($target);
-                $file->write($response);
-                $file->close();
-
-                // Store the UUID in cache
-                if ($file->exists()) {
-                    $item['contao']['uuid'] = StringUtil::binToUuid($file->getModel()->uuid);
+                // Save the image and add sync the database
+                if ($response !== false) {
+                    $file->write($response);
+                    $file->close();
                 }
+            }
+
+            // Store the UUID in cache
+            if ($file->exists()) {
+                $item['contao']['uuid'] = StringUtil::binToUuid($file->getModel()->uuid);
             }
         }
 
