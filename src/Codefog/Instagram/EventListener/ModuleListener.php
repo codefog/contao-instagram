@@ -32,6 +32,9 @@ class ModuleListener
         if ($dc->id && Input::get('cfg_instagram') && ($code = Input::get('code'))) {
             $this->storeAccessToken($dc->id, $code);
         }
+
+        // add class clr to prevent align problems in backend
+        $GLOBALS['TL_DCA']['tl_module']['fields']['numberOfItems']['eval']['tl_class'] .= ' clr';
     }
 
     /**
