@@ -32,6 +32,9 @@ class ModuleListener
         if ($dc->id && Input::get('cfg_instagram') && ($code = Input::get('code'))) {
             $this->storeAccessToken($dc->id, $code);
         }
+
+        // add class clr to prevent align problems in backend
+        $GLOBALS['TL_DCA']['tl_module']['fields']['numberOfItems']['eval']['tl_class'] .= ' clr';
     }
 
     /**
@@ -43,21 +46,6 @@ class ModuleListener
     {
         if ($dc->activeRecord->type === 'cfg_instagram' && $dc->activeRecord->cfg_instagramClientId && Input::post('cfg_instagramRequestToken')) {
             $this->requestAccessToken($dc->activeRecord->cfg_instagramClientId);
-        }
-    }
-
-    /**
-     * An additional load_callback for field 'numberOfItems'
-     *
-     * @param               $varValue
-     * @param DataContainer $dc
-     */
-    public function loadCallbackNumberOfItems($varValue, DataContainer $dc)
-    {
-        //  change alignment of the field in the backend for module type 'cfg_instagram'
-        if ($dc->activeRecord->type === 'cfg_instagram')
-        {
-            $GLOBALS['TL_DCA']['tl_module']['fields']['numberOfItems']['eval']['tl_class'] .= ' clr';
         }
     }
 

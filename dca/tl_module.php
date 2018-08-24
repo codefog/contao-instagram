@@ -15,6 +15,7 @@
  */
 $GLOBALS['TL_DCA']['tl_module']['config']['onload_callback'][] = ['Codefog\Instagram\EventListener\ModuleListener', 'onLoadCallback'];
 $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = ['Codefog\Instagram\EventListener\ModuleListener', 'onSubmitCallback'];
+$GLOBALS['TL_DCA']['tl_module']['fields']['numberOfItems']['load_callback'][] = ['Codefog\Instagram\EventListener\ModuleListener', 'loadCallbackNumberOfItems'];
 
 /**
  * Add palettes
