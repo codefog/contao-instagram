@@ -121,8 +121,6 @@ class InstagramModule extends Module
      */
     protected function getFeedItems()
     {
-        $requestOptions = [];
-
         switch ($this->cfg_instagramEndpoint) {
             case 'user':
                 $endpoint = 'https://api.instagram.com/v1/users/self/media/recent';
@@ -134,13 +132,14 @@ class InstagramModule extends Module
                 return [];
         }
 
-        // check settings numberOfItems to prevent empty results
-        if ($this->numberOfItems > 0)
-        {
-            $requestOptions['count'] = $this->numberOfItems;
+        $options = [];
+
+        // Set the limit only if greater than zero (#10)
+        if ($this->numberOfItems > 0) {
+            $options['count'] = $this->numberOfItems;
         }
 
-        $response = $this->sendRequest($endpoint, $requestOptions);
+        $response = $this->sendRequest($endpoint, $options);
 
         if ($response === null) {
             return [];
