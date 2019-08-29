@@ -132,7 +132,14 @@ class InstagramModule extends Module
                 return [];
         }
 
-        $response = $this->sendRequest($endpoint, ['count' => $this->numberOfItems]);
+        $options = [];
+
+        // Set the limit only if greater than zero (#10)
+        if ($this->numberOfItems > 0) {
+            $options['count'] = $this->numberOfItems;
+        }
+
+        $response = $this->sendRequest($endpoint, $options);
 
         if ($response === null) {
             return [];
