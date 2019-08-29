@@ -126,7 +126,7 @@ class ModuleListener
             'client_id' => $clientId,
             'redirect_uri' => $_SESSION['CFG_INSTAGRAM_URI'],
             'response_type' => 'code',
-            'scope' => 'public_content',
+            'scope' => 'basic',
         ];
 
         Controller::redirect('https://api.instagram.com/oauth/authorize/?' . http_build_query($data));
