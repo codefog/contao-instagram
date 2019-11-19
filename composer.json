@@ -1,8 +1,12 @@
 {
     "name": "codefog/contao-instagram",
-    "description": "Instagram for Contao Open Source CMS",
-    "keywords": ["contao", "instagram", "feed"],
-    "type": "contao-module",
+    "description": "Instagram bundle for Contao Open Source CMS",
+    "keywords": [
+        "contao",
+        "instagram",
+        "feed"
+    ],
+    "type": "contao-bundle",
     "license": "MIT",
     "authors": [
         {
@@ -16,27 +20,25 @@
         }
     ],
     "require": {
-        "php": "^5.6||^7.0",
-        "contao/core-bundle":"^3.5 || ^4.4",
-        "contao-community-alliance/composer-plugin":"^2.4.1 || ~3.0",
-        "codefog/contao-haste": "^4.17"
+        "php": "^7.1",
+        "ext-json": "*",
+        "contao/core-bundle": "^4.4",
+        "codefog/contao-haste": "^4.24",
+        "guzzlehttp/guzzle": "~6.0"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.0",
+        "friendsofphp/php-cs-fixer": "^2.2"
     },
     "conflict": {
-        "contao-legacy/cfg_instagram": "*"
+        "contao/manager-plugin": "<2.0 || >=3.0"
     },
-    "replace": {
-        "contao-legacy/cfg_instagram": "self.version"
-    },
-    "autoload":{
-        "psr-0": {
-            "Codefog\\Instagram\\": "src"
+    "autoload": {
+        "psr-4": {
+            "Codefog\\InstagramBundle\\": "src/"
         }
     },
     "extra": {
-        "contao": {
-            "sources": {
-                "": "system/modules/cfg_instagram"
-            }
-        }
+        "contao-manager-plugin": "Codefog\\InstagramBundle\\ContaoManager\\Plugin"
     }
 }
