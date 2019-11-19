@@ -63,9 +63,6 @@ class InstagramModule extends Module
             return '';
         }
 
-        // Backwards compatibility
-        $this->cfg_instagramEndpoint = $this->cfg_instagramEndpoint ?: 'user';
-
         return parent::generate();
     }
 
@@ -127,27 +124,7 @@ class InstagramModule extends Module
      */
     protected function getFeedItems()
     {
-        $options = [];
-
-        switch ($this->cfg_instagramEndpoint) {
-            case 'user':
-                $endpoint = 'https://graph.instagram.com/me/media';
-                $options['fields'] = 'id,caption,media_type,media_url,permalink,timestamp';
-                break;
-            // @todo – remove finding by tag as it is not supported
-            case 'tag':
-                $endpoint = sprintf('https://api.instagram.com/v1/tags/%s/media/recent', $this->cfg_instagramTag);
-                break;
-            default:
-                return [];
-        }
-
-        // Set the limit only if greater than zero (#10)
-        if ($this->numberOfItems > 0) {
-            $options['count'] = $this->numberOfItems;
-        }
-
-        $response = $this->sendRequest($endpoint, $options);
+        $response = $this->sendRequest('https://graph.instagram.com/me/media', ['fields' => 'id,caption,media_type,media_url,permalink,timestamp']);
 
         if (null === $response) {
             return [];
@@ -160,6 +137,11 @@ class InstagramModule extends Module
             $data = $this->storeMediaFiles($data);
         }
 
+        // Limit the number of items
+        if ($this->numberOfItems > 0) {
+            $data = array_slice($data, 0, $this->numberOfItems);
+        }
+
         return $data;
     }
 
@@ -167,19 +149,20 @@ class InstagramModule extends Module
      * Send and cache the request to Instagram.
      *
      * @param string $url
+     * @param array $query
      *
      * @return array
      */
-    protected function sendRequest($url, array $data = [])
+    protected function sendRequest($url, array $query = [])
     {
-        $data['access_token'] = $this->cfg_instagramAccessToken;
+        $query['access_token'] = $this->cfg_instagramAccessToken;
 
-        $cacheKey = substr(md5($url.'|'.implode('-', $data)), 0, 8);
+        $cacheKey = substr(md5($url.'|'.implode('-', $query)), 0, 8);
         $cacheFile = TL_ROOT.'/system/tmp/'.sprintf('%s.json', $cacheKey);
         $expires = time() - $this->rss_cache;
 
         if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
-            file_put_contents($cacheFile, json_encode($this->executeRequest($url, $data)));
+            file_put_contents($cacheFile, json_encode($this->executeRequest($url, $query)));
         }
 
         return json_decode(file_get_contents($cacheFile), true);
