@@ -40,6 +40,6 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
      */
     public function getRouteCollection(LoaderResolverInterface $resolver, KernelInterface $kernel)
     {
-        return $resolver->resolve(null, 'annotation')->load('../Controller');
+        return $resolver->resolve(null, 'annotation')->load(__DIR__ . '/../Controller');
     }
 }

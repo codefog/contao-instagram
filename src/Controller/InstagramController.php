@@ -71,7 +71,7 @@ class InstagramController
     }
 
     /**
-     * @Route('/auth', name="instagram_auth", methods={"GET"})
+     * @Route("/auth", name="instagram_auth", methods={"GET"})
      */
     public function authAction(Request $request): Response
     {
