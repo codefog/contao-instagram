@@ -12,8 +12,9 @@
 
 namespace Codefog\InstagramBundle\EventListener;
 
-use Contao\Controller;
+use Contao\CoreBundle\Exception\RedirectResponseException;
 use Contao\DataContainer;
+use Contao\Environment;
 use Contao\Input;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -68,7 +69,11 @@ class ModuleListener
      */
     private function requestAccessToken($clientId)
     {
-        $this->session->set(self::SESSION_KEY, Input::get('id'));
+        $this->session->set(self::SESSION_KEY, [
+            'moduleId' => Input::get('id'),
+            'backUrl' => Environment::get('uri'),
+        ]);
+
         $this->session->save();
 
         $data = [
@@ -77,7 +82,7 @@ class ModuleListener
             'response_type' => 'code',
             'scope' => 'user_profile,user_media',
         ];
-print_r($data);exit;
-        Controller::redirect('https://api.instagram.com/oauth/authorize/?'.http_build_query($data));
+
+        throw new RedirectResponseException('https://api.instagram.com/oauth/authorize/?'.http_build_query($data));
     }
 }

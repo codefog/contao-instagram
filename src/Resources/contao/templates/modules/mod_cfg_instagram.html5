@@ -4,11 +4,11 @@
 
 <?php foreach ($this->items as $item): ?>
     <div class="item">
-        <a href="<?= specialchars($item['link']) ?>" target="_blank"<?php if ($item['caption']['text']): ?> title="<?= specialchars($item['caption']['text']) ?>"<?php endif; ?>>
+        <a href="<?= \Contao\StringUtil::specialchars($item['permalink']) ?>" target="_blank"<?php if ($item['caption']): ?> title="<?= \Contao\StringUtil::specialchars($item['caption']) ?>"<?php endif; ?>>
             <?php if ($item['contao']['picture']): ?>
                 <?php $this->insert('picture_default', $item['contao']['picture']->picture) ?>
             <?php else: ?>
-                <img src="<?= $item['images']['standard_resolution']['url'] ?>" alt="<?= specialchars($item['caption']['text']) ?>">
+                <img src="<?= $item['media_url'] ?>" alt="<?= \Contao\StringUtil::specialchars($item['caption']) ?>">
             <?php endif; ?>
         </a>
     </div>

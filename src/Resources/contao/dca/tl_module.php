@@ -13,7 +13,7 @@
 /**
  * Add global callbacks.
  */
-$GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = ['codefog_instagram.listener.module', 'onSubmitCallback'];
+$GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = [\Codefog\InstagramBundle\EventListener\ModuleListener::class, 'onSubmitCallback'];
 
 /*
  * Add palettes
@@ -59,7 +59,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramRequestToken'] = [
     'inputType' => 'checkbox',
     'eval' => ['doNotSaveEmpty' => true, 'tl_class' => 'w50 m12'],
     'save_callback' => [
-        ['codefog_instagram.listener.module', 'onRequestTokenSave'],
+        [\Codefog\InstagramBundle\EventListener\ModuleListener::class, 'onRequestTokenSave'],
     ],
 ];
 

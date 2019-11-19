@@ -11,7 +11,7 @@ One important thing to note is that for all app URIs listed:
 - Deauthorize Callback URL
 - Data Deletion Request Callback URL
 
-you have to enter your domain name + `/contao` suffix, e.g. `https://domain.tld/contao`: 
+you have to enter your domain name + `/_instagram/auth` suffix (without a trailing slash!), e.g. `https://domain.tld/_instagram/auth`: 
 
 ![](images/instagram-1.png)
 
@@ -53,6 +53,8 @@ documentation that contains information about the data you can obtain from the A
 
 1. https://developers.facebook.com/docs/instagram-basic-display-api/
 
+> As of version 2.0 of the extension and changes in Instagram API, it is no longer possible to filter media files
+> by a #hashtag. This option has been dropped in version 2.0.0 of the extension.
 
 ## About errors
 

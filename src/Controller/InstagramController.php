@@ -85,13 +85,15 @@ class InstagramController
             return new Response(Response::$statusTexts[Response::HTTP_UNAUTHORIZED], Response::HTTP_UNAUTHORIZED);
         }
 
+        $sessionData = $this->session->get(ModuleListener::SESSION_KEY);
+
         // Module ID not found in session
-        if (!($moduleId = $this->session->get(ModuleListener::SESSION_KEY))) {
+        if ($sessionData === null || !isset($sessionData['moduleId'])) {
             return new Response(Response::$statusTexts[Response::HTTP_BAD_REQUEST], Response::HTTP_BAD_REQUEST);
         }
 
         // Module not found
-        if (false === ($module = $this->db->fetchAssoc('SELECT * FROM tl_module WHERE id=?', [$moduleId]))) {
+        if (false === ($module = $this->db->fetchAssoc('SELECT * FROM tl_module WHERE id=?', [$sessionData['moduleId']]))) {
             return new Response(Response::$statusTexts[Response::HTTP_BAD_REQUEST], Response::HTTP_BAD_REQUEST);
         }
 
@@ -101,16 +103,10 @@ class InstagramController
             return new Response(Response::$statusTexts[Response::HTTP_INTERNAL_SERVER_ERROR], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $this->db->update('tl_module', ['cfg_instagramAccessToken' => $accessToken], ['id' => $moduleId]);
+        $this->db->update('tl_module', ['cfg_instagramAccessToken' => $accessToken], ['id' => $sessionData['moduleId']]);
+        $this->session->remove(ModuleListener::SESSION_KEY);
 
-        return new RedirectResponse($this->router->generate('contao_backend', [
-            'do' => 'themes',
-            'table' => 'tl_module',
-            'id' => $moduleId,
-            'act' => 'edit',
-//            'ref' => '', // @todo
-//            'rt' => '', // @todo
-        ]));
+        return new RedirectResponse($sessionData['backUrl']);
     }
 
     /**
@@ -125,11 +121,13 @@ class InstagramController
     {
         try {
             $response = (new Client())->post('https://api.instagram.com/oauth/access_token', [
-                'app_id' => $module['cfg_instagramAppId'],
-                'app_secret' => $module['cfg_instagramAppSecret'],
-                'grant_type' => 'authorization_code',
-                'redirect_uri' => $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
-                'code' => $code,
+                'form_params' => [
+                    'app_id' => $module['cfg_instagramAppId'],
+                    'app_secret' => $module['cfg_instagramAppSecret'],
+                    'grant_type' => 'authorization_code',
+                    'redirect_uri' => $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
+                    'code' => $code,
+                ],
             ]);
         } catch (ClientException | ServerException $e) {
             $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);

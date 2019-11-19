@@ -19,6 +19,10 @@ use Contao\FilesModel;
 use Contao\Module;
 use Contao\StringUtil;
 use Contao\System;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use Patchwork\Utf8;
 
 class InstagramModule extends Module
 {
@@ -46,7 +50,7 @@ class InstagramModule extends Module
         if (TL_MODE === 'BE') {
             $template = new BackendTemplate('be_wildcard');
 
-            $template->wildcard = '### '.utf8_strtoupper($GLOBALS['TL_LANG']['FMD']['cfg_instagram'][0]).' ###';
+            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['FMD']['cfg_instagram'][0]).' ###';
             $template->title = $this->headline;
             $template->id = $this->id;
             $template->link = $this->name;
@@ -107,7 +111,7 @@ class InstagramModule extends Module
      */
     protected function getUserData()
     {
-        $response = $this->sendRequest('https://api.instagram.com/v1/users/self');
+        $response = $this->sendRequest('https://graph.instagram.com/me/media', ['fields' => 'id,username']);
 
         if (null === $response) {
             return [];
@@ -123,18 +127,20 @@ class InstagramModule extends Module
      */
     protected function getFeedItems()
     {
+        $options = [];
+
         switch ($this->cfg_instagramEndpoint) {
             case 'user':
-                $endpoint = 'https://api.instagram.com/v1/users/self/media/recent';
+                $endpoint = 'https://graph.instagram.com/me/media';
+                $options['fields'] = 'id,caption,media_type,media_url,permalink,timestamp';
                 break;
+            // @todo – remove finding by tag as it is not supported
             case 'tag':
                 $endpoint = sprintf('https://api.instagram.com/v1/tags/%s/media/recent', $this->cfg_instagramTag);
                 break;
             default:
                 return [];
         }
-
-        $options = [];
 
         // Set the limit only if greater than zero (#10)
         if ($this->numberOfItems > 0) {
@@ -193,22 +199,26 @@ class InstagramModule extends Module
         }
 
         foreach ($data as &$item) {
-            $url = $item['images']['standard_resolution']['url'];
-            $extension = pathinfo(explode('?', $url)[0], PATHINFO_EXTENSION);
+            if ($item['media_type'] !== 'IMAGE') {
+                continue;
+            }
+
+            $extension = pathinfo(explode('?', $item['media_url'])[0], PATHINFO_EXTENSION);
             $file = new File(sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension));
 
             // Download the image
             if (!$file->exists()) {
-                $ch = curl_init();
-                curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_URL => $url]);
-                $response = curl_exec($ch);
-                curl_close($ch);
+                try {
+                    $response = (new Client())->get($item['media_url']);
+                } catch (ClientException | ServerException $e) {
+                    System::log(sprintf('Unable to fetch Instagram image from "%s": %s', $item['media_url'], $e->getMessage()), __METHOD__, TL_ERROR);
+
+                    continue;
+                }
 
                 // Save the image and add sync the database
-                if (false !== $response) {
-                    $file->write($response);
-                    $file->close();
-                }
+                $file->write($response->getBody());
+                $file->close();
             }
 
             // Store the UUID in cache
@@ -224,32 +234,28 @@ class InstagramModule extends Module
      * Execute the request to Instagram.
      *
      * @param string $url
+     * @param array $query
      *
      * @return array|null
      */
-    private function executeRequest($url, array $data = [])
+    private function executeRequest($url, array $query = [])
     {
-        $ch = curl_init();
-
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_URL => $url.'?'.http_build_query($data),
-        ]);
-
-        $response = json_decode(curl_exec($ch), true);
-
-        curl_close($ch);
-
-        if (null === $response || !$response['data'] || 200 !== $response['meta']['code']) {
-            System::log(
-                sprintf('Unable to fetch Instagram data: %s, %s, %s', $url, print_r($data, true), $response),
-                __METHOD__,
-                TL_ERROR
-            );
+        try {
+            $response = (new Client())->get($url, ['query' => $query]);
+        } catch (ClientException | ServerException $e) {
+            System::log(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()), __METHOD__, TL_ERROR);
 
             return null;
         }
 
-        return $response;
+        $data = json_decode($response->getBody(), true);
+
+        if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE) {
+            System::log(sprintf('Unable to decode Instagram data from "%s": %s', $url, json_last_error_msg()), __METHOD__,TL_ERROR);
+
+            return null;
+        }
+
+        return $data;
     }
 }
