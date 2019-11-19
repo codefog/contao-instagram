@@ -6,7 +6,7 @@ services:
             - "@database_connection"
             - "@router"
             - "@session"
-            - "@token_storage"
+            - "@security.token_storage"
             - "@?logger"
         tags:
             - { name: monolog.logger, channel: contao }
