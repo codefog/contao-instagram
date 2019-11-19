@@ -77,7 +77,7 @@ class ModuleListener
             'response_type' => 'code',
             'scope' => 'user_profile,user_media',
         ];
-
+print_r($data);exit;
         Controller::redirect('https://api.instagram.com/oauth/authorize/?'.http_build_query($data));
     }
 }

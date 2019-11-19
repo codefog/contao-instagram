@@ -95,27 +95,13 @@ class InstagramController
             return new Response(Response::$statusTexts[Response::HTTP_BAD_REQUEST], Response::HTTP_BAD_REQUEST);
         }
 
-        try {
-            $response = (new Client())->post('https://api.instagram.com/oauth/access_token', [
-                'app_id' => $module['cfg_instagramAppId'],
-                'app_secret' => $module['cfg_instagramAppSecret'],
-                'grant_type' => 'authorization_code',
-                'redirect_uri' => $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
-                'code' => $code,
-            ]);
-        } catch (ClientException | ServerException $e) {
-            $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+        $accessToken = $this->getAccessToken($module, $code);
 
+        if ($accessToken === null) {
             return new Response(Response::$statusTexts[Response::HTTP_INTERNAL_SERVER_ERROR], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        $data = json_decode($response->getBody(), true);
-
-        if (!\is_array($data) || JSON_ERROR_NONE !== json_last_error()) {
-            $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', json_last_error_msg()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
-        }
-
-        $this->db->update('tl_module', ['cfg_instagramAccessToken' => $data['access_token']], ['id' => $moduleId]);
+        $this->db->update('tl_module', ['cfg_instagramAccessToken' => $accessToken], ['id' => $moduleId]);
 
         return new RedirectResponse($this->router->generate('contao_backend', [
             'do' => 'themes',
@@ -128,9 +114,44 @@ class InstagramController
     }
 
     /**
+     * Get the access token data
+     *
+     * @param array $module
+     * @param string $code
+     *
+     * @return string|null
+     */
+    private function getAccessToken(array $module, string $code): ?string
+    {
+        try {
+            $response = (new Client())->post('https://api.instagram.com/oauth/access_token', [
+                'app_id' => $module['cfg_instagramAppId'],
+                'app_secret' => $module['cfg_instagramAppSecret'],
+                'grant_type' => 'authorization_code',
+                'redirect_uri' => $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
+                'code' => $code,
+            ]);
+        } catch (ClientException | ServerException $e) {
+            $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+
+            return null;
+        }
+
+        $data = json_decode($response->getBody(), true);
+
+        if (!\is_array($data) || JSON_ERROR_NONE !== json_last_error()) {
+            $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', json_last_error_msg()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+
+            return null;
+        }
+
+        return $data['access_token'];
+    }
+
+    /**
      * Get the backend user.
      */
-    public function getBackendUser(): ?BackendUser
+    private function getBackendUser(): ?BackendUser
     {
         if (null === ($token = $this->tokenStorage->getToken())) {
             return null;

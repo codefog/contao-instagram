@@ -1,6 +1,6 @@
 services:
     codefog_instagram.controller:
-        class: Codefog\InstagramBundle\Contorller\InstagramController
+        class: Codefog\InstagramBundle\Controller\InstagramController
         public: true
         arguments:
             - "@database_connection"
@@ -9,7 +9,7 @@ services:
             - "@token_storage"
             - "@?logger"
         tags:
-            - { name: monolog.logger, channel: security }
+            - { name: monolog.logger, channel: contao }
 
     codefog_instagram.listener.module:
         class: Codefog\InstagramBundle\EventListener\ModuleListener
