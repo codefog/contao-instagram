@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = [\Codefog\Ins
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['cfg_instagramStoreFiles'] = 'cfg_instagramStoreFolder,imgSize';
 
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'cfg_instagramStoreFiles';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramAppId,cfg_instagramAppSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,rss_cache,cfg_instagramStoreFiles;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramAppId,cfg_instagramAppSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,cfg_instagramStoreFiles;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 /*
  * Add fields

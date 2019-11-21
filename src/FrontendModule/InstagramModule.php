@@ -12,21 +12,12 @@
 
 namespace Codefog\InstagramBundle\FrontendModule;
 
+use Codefog\InstagramBundle\InstagramClient;
 use Contao\BackendTemplate;
 use Contao\Controller;
-use Contao\File;
 use Contao\FilesModel;
 use Contao\Module;
-use Contao\StringUtil;
 use Contao\System;
-use Doctrine\Common\Cache\FilesystemCache;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\HandlerStack;
-use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
-use Kevinrob\GuzzleCache\Strategy\GreedyCacheStrategy;
 use Patchwork\Utf8;
 
 class InstagramModule extends Module
@@ -37,6 +28,11 @@ class InstagramModule extends Module
      * @var string
      */
     protected $strTemplate = 'mod_cfg_instagram';
+
+    /**
+     * @var InstagramClient
+     */
+    protected $client;
 
     /**
      * Items.
@@ -64,6 +60,8 @@ class InstagramModule extends Module
             return $template->parse();
         }
 
+        $this->client = System::getContainer()->get(InstagramClient::class);
+
         if (!$this->cfg_instagramAccessToken || 0 === \count($this->items = $this->getFeedItems())) {
             return '';
         }
@@ -82,10 +80,8 @@ class InstagramModule extends Module
 
     /**
      * Generate the items.
-     *
-     * @return array
      */
-    protected function generateItems()
+    protected function generateItems(): array
     {
         $items = $this->items;
 
@@ -108,28 +104,24 @@ class InstagramModule extends Module
 
     /**
      * Get the user data from Instagram.
-     *
-     * @return array
      */
-    protected function getUserData()
+    protected function getUserData(): array
     {
-        $response = $this->sendRequest('https://graph.instagram.com/me/media', ['fields' => 'id,username']);
+        $response = $this->client->getUserData($this->cfg_instagramAccessToken, (int) $this->id);
 
         if (null === $response) {
             return [];
         }
 
-        return $response['data'];
+        return $response;
     }
 
     /**
      * Get the feed items from Instagram.
-     *
-     * @return array
      */
-    protected function getFeedItems()
+    protected function getFeedItems(): array
     {
-        $response = $this->sendRequest('https://graph.instagram.com/me/media', ['fields' => 'id,caption,media_type,media_url,permalink,timestamp']);
+        $response = $this->client->getMediaData($this->cfg_instagramAccessToken, (int) $this->id);
 
         if (null === $response) {
             return [];
@@ -139,95 +131,12 @@ class InstagramModule extends Module
 
         // Store the files locally
         if ($this->cfg_instagramStoreFiles) {
-            $data = $this->storeMediaFiles($data);
+            $data = $this->client->storeMediaFiles($this->cfg_instagramStoreFolder, $data);
         }
 
         // Limit the number of items
         if ($this->numberOfItems > 0) {
-            $data = array_slice($data, 0, $this->numberOfItems);
-        }
-
-        return $data;
-    }
-
-    /**
-     * Store the media files locally.
-     *
-     * @throws \RuntimeException
-     *
-     * @return array
-     */
-    protected function storeMediaFiles(array $data)
-    {
-        if (null === ($folderModel = FilesModel::findByPk($this->cfg_instagramStoreFolder)) || !is_dir(TL_ROOT.'/'.$folderModel->path)) {
-            throw new \RuntimeException('The target folder does not exist');
-        }
-
-        foreach ($data as &$item) {
-            if ($item['media_type'] !== 'IMAGE') {
-                continue;
-            }
-
-            $extension = pathinfo(explode('?', $item['media_url'])[0], PATHINFO_EXTENSION);
-            $file = new File(sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension));
-
-            // Download the image
-            if (!$file->exists()) {
-                try {
-                    $response = (new Client())->get($item['media_url']);
-                } catch (ClientException | ServerException $e) {
-                    System::log(sprintf('Unable to fetch Instagram image from "%s": %s', $item['media_url'], $e->getMessage()), __METHOD__, TL_ERROR);
-
-                    continue;
-                }
-
-                // Save the image and add sync the database
-                $file->write($response->getBody());
-                $file->close();
-            }
-
-            // Store the UUID in cache
-            if ($file->exists()) {
-                $item['contao']['uuid'] = StringUtil::binToUuid($file->getModel()->uuid);
-            }
-        }
-
-        return $data;
-    }
-
-    /**
-     * Send the request to Instagram.
-     *
-     * @param string $url
-     * @param array $query
-     *
-     * @return array|null
-     */
-    protected function sendRequest($url, array $query = [])
-    {
-        if (!isset($query['access_token'])) {
-            $query['access_token'] = $this->cfg_instagramAccessToken;
-        }
-
-        $cacheDir = System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/instagram/';
-
-        $stack = HandlerStack::create();
-        $stack->push(new CacheMiddleware(new GreedyCacheStrategy(new DoctrineCacheStorage(new FilesystemCache($cacheDir)), $this->rss_cache)), 'cache');
-
-        try {
-            $response = (new Client(['handler' => $stack]))->get($url, ['query' => $query]);
-        } catch (ClientException | ServerException $e) {
-            System::log(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()), __METHOD__, TL_ERROR);
-
-            return null;
-        }
-
-        $data = json_decode($response->getBody(), true);
-
-        if (!is_array($data) || json_last_error() !== JSON_ERROR_NONE) {
-            System::log(sprintf('Unable to decode Instagram data from "%s": %s', $url, json_last_error_msg()), __METHOD__,TL_ERROR);
-
-            return null;
+            $data = \array_slice($data, 0, $this->numberOfItems);
         }
 
         return $data;

@@ -1,14 +1,27 @@
 services:
+    Codefog\InstagramBundle\InstagramClient:
+        public: true
+        arguments:
+            - "@Codefog\\InstagramBundle\\InstagramRequestCache"
+            - "@contao.framework"
+            - "@?logger"
+        tags:
+            - { name: monolog.logger, channel: contao }
+
+    Codefog\InstagramBundle\InstagramRequestCache:
+        public: true
+        arguments:
+            - "@filesystem"
+            - "%kernel.project_dir%"
+
     Codefog\InstagramBundle\Controller\InstagramController:
         public: true
         arguments:
+            - "@Codefog\\InstagramBundle\\InstagramClient"
             - "@database_connection"
             - "@router"
             - "@session"
             - "@security.token_storage"
-            - "@?logger"
-        tags:
-            - { name: monolog.logger, channel: contao }
 
     Codefog\InstagramBundle\EventListener\ModuleListener:
         public: true

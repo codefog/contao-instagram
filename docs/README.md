@@ -20,16 +20,13 @@ Here you should also copy the *Instagram App ID* and *Instagram App Secret* keys
 
 ## Create a frontend module
 
-Now go to the Contao backend and create the `Instagram` front end module. Fill in the necessary data and save the record.
-
-**Note:** be sure to check the `Request access token` box!
+Now go to the Contao backend and create the `Instagram` front end module. Fill in the necessary data, 
+check the `Request access token and update feed` checkboxbox and save the record.
 
 ![](images/instagram-2.png)
 
 If you have configured your app properly, you should now see the screen prompting you for the authorization.
-Click the green button to authorize yourself for your app and you should be taken back to the Contao backend.
-
-![](images/instagram-3.png)
+Click the button to authorize yourself for your app and you should be taken back to the Contao backend.
 
 Please ensure that the `Instagram access token` is now filled in. You can now safely add the module to the page.
 
