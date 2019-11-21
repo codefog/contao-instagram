@@ -24,7 +24,9 @@
         "ext-json": "*",
         "contao/core-bundle": "^4.4",
         "codefog/contao-haste": "^4.24",
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
+        "kevinrob/guzzle-cache-middleware": "^3.2",
+        "doctrine/cache": "^1.9"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.0",

@@ -19,9 +19,14 @@ use Contao\FilesModel;
 use Contao\Module;
 use Contao\StringUtil;
 use Contao\System;
+use Doctrine\Common\Cache\FilesystemCache;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Strategy\GreedyCacheStrategy;
 use Patchwork\Utf8;
 
 class InstagramModule extends Module
@@ -146,36 +151,13 @@ class InstagramModule extends Module
     }
 
     /**
-     * Send and cache the request to Instagram.
-     *
-     * @param string $url
-     * @param array $query
-     *
-     * @return array
-     */
-    protected function sendRequest($url, array $query = [])
-    {
-        $query['access_token'] = $this->cfg_instagramAccessToken;
-
-        $cacheKey = substr(md5($url.'|'.implode('-', $query)), 0, 8);
-        $cacheFile = TL_ROOT.'/system/tmp/'.sprintf('%s.json', $cacheKey);
-        $expires = time() - $this->rss_cache;
-
-        if (!is_file($cacheFile) || (filemtime($cacheFile) < $expires)) {
-            file_put_contents($cacheFile, json_encode($this->executeRequest($url, $query)));
-        }
-
-        return json_decode(file_get_contents($cacheFile), true);
-    }
-
-    /**
      * Store the media files locally.
      *
      * @throws \RuntimeException
      *
      * @return array
      */
-    private function storeMediaFiles(array $data)
+    protected function storeMediaFiles(array $data)
     {
         if (null === ($folderModel = FilesModel::findByPk($this->cfg_instagramStoreFolder)) || !is_dir(TL_ROOT.'/'.$folderModel->path)) {
             throw new \RuntimeException('The target folder does not exist');
@@ -214,17 +196,26 @@ class InstagramModule extends Module
     }
 
     /**
-     * Execute the request to Instagram.
+     * Send the request to Instagram.
      *
      * @param string $url
      * @param array $query
      *
      * @return array|null
      */
-    private function executeRequest($url, array $query = [])
+    protected function sendRequest($url, array $query = [])
     {
+        if (!isset($query['access_token'])) {
+            $query['access_token'] = $this->cfg_instagramAccessToken;
+        }
+
+        $cacheDir = System::getContainer()->getParameter('kernel.project_dir') . '/var/cache/instagram/';
+
+        $stack = HandlerStack::create();
+        $stack->push(new CacheMiddleware(new GreedyCacheStrategy(new DoctrineCacheStorage(new FilesystemCache($cacheDir)), $this->rss_cache)), 'cache');
+
         try {
-            $response = (new Client())->get($url, ['query' => $query]);
+            $response = (new Client(['handler' => $stack]))->get($url, ['query' => $query]);
         } catch (ClientException | ServerException $e) {
             System::log(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()), __METHOD__, TL_ERROR);
 
