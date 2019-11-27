@@ -2,33 +2,31 @@
 
 ## Create an Instagram app
 
-First of all you have to create the Instagram app. Simply go to the [developer interface](https://www.instagram.com/developer/clients/manage/)
-and `Register a New Client`. Fill in the necessary data and enter your domain name + `/contao/main.php` in the
-`Valid redirect URIs` field.
+First of all you have to create the Instagram app. For that please follow the [official Getting Started guide](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started)
+up until point 3 (inclusive).
+
+One important thing to note is that for all app URIs listed:
+
+- Valid OAuth Redirect URIs
+- Deauthorize Callback URL
+- Data Deletion Request Callback URL
+
+you have to enter your domain name + `/_instagram/auth` suffix (without a trailing slash!), e.g. `https://domain.tld/_instagram/auth`: 
 
 ![](images/instagram-1.png)
 
-Once the app is created, copy the *Client ID* and *Client Secret* keys to your clipboard .
-
-### Contao 4
-
-If you are using Contao 4, the `Valid redirect URIs` field needs to be filled with your domain name + `/contao` (_without_ `/main.php`) instead.
-
-For example: `http://domain.tld/contao`
+Here you should also copy the *Instagram App ID* and *Instagram App Secret* keys to your clipboard.
 
 
 ## Create a frontend module
 
-Now go to the Contao backend and create the `Instagram` front end module. Fill in the necessary data and save the record.
-
-**Note:** be sure to check the `Request access token` box!
-
-![](images/preview.png)
-
-If you have configured your app properly, you should now see the screen prompting you for the authorization.
-Click the green button to authorize yourself for your app and you should be taken back to the Contao backend.
+Now go to the Contao backend and create the `Instagram` front end module. Fill in the necessary data, 
+check the `Request access token and update feed` checkboxbox and save the record.
 
 ![](images/instagram-2.png)
+
+If you have configured your app properly, you should now see the screen prompting you for the authorization.
+Click the button to authorize yourself for your app and you should be taken back to the Contao backend.
 
 Please ensure that the `Instagram access token` is now filled in. You can now safely add the module to the page.
 
@@ -50,9 +48,10 @@ You can do that by dumping the variables inside `mod_cfg_instagram.html5` templa
 Before you report any bugs regarding the missing Instagram feed data, be sure that you have read the official
 documentation that contains information about the data you can obtain from the API:
 
-1. https://www.instagram.com/developer/authorization/
-2. https://www.instagram.com/developer/review/
+1. https://developers.facebook.com/docs/instagram-basic-display-api/
 
+> As of version 2.0 of the extension and changes in Instagram API, it is no longer possible to filter media files
+> by a #hashtag. This option has been dropped in version 2.0.0 of the extension.
 
 ## About errors
 
