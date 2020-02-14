@@ -165,6 +165,20 @@ class InstagramClient
      */
     public function getAccessToken(string $appId, string $appSecret, string $code, string $redirectUri): ?string
     {
+        if (($token = $this->getShortLivedAccessToken($appId, $appSecret, $code, $redirectUri)) === null) {
+            return null;
+        }
+
+        return $this->getLongLivedAccessToken($token, $appSecret);
+    }
+
+    /**
+     * Get the short lived access token
+     *
+     * @return string
+     */
+    private function getShortLivedAccessToken(string $appId, string $appSecret, string $code, string $redirectUri): ?string
+    {
         try {
             $response = $this->getClient()->post('https://api.instagram.com/oauth/access_token', [
                 'form_params' => [
@@ -177,7 +191,7 @@ class InstagramClient
             ]);
         } catch (ClientException | ServerException $e) {
             if (null !== $this->logger) {
-                $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+                $this->logger->error(sprintf('Unable to fetch the Instagram short-lived access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
             }
 
             return null;
@@ -187,7 +201,43 @@ class InstagramClient
 
         if (!\is_array($data) || JSON_ERROR_NONE !== json_last_error()) {
             if (null !== $this->logger) {
-                $this->logger->error(sprintf('Unable to fetch the Instagram access token: %s', json_last_error_msg()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+                $this->logger->error(sprintf('Unable to fetch the Instagram short-lived access token: %s', json_last_error_msg()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            }
+
+            return null;
+        }
+
+        return $data['access_token'];
+    }
+
+    /**
+     * Get the long lived access token
+     *
+     * @return string
+     */
+    private function getLongLivedAccessToken(string $token, string $appSecret): ?string
+    {
+        try {
+            $response = $this->getClient()->get('https://graph.instagram.com/access_token', [
+                'query' => [
+                    'grant_type' => 'ig_exchange_token',
+                    'client_secret' => $appSecret,
+                    'access_token' => $token,
+                ],
+            ]);
+        } catch (ClientException | ServerException $e) {
+            if (null !== $this->logger) {
+                $this->logger->error(sprintf('Unable to fetch the Instagram long-lived access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            }
+
+            return null;
+        }
+
+        $data = json_decode($response->getBody(), true);
+
+        if (!\is_array($data) || JSON_ERROR_NONE !== json_last_error()) {
+            if (null !== $this->logger) {
+                $this->logger->error(sprintf('Unable to fetch the Instagram long-lived access token: %s', json_last_error_msg()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
             }
 
             return null;
