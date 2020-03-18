@@ -22,16 +22,25 @@ class InstagramRequestCache
     private $fs;
 
     /**
+     * @var int
+     */
+    private $cacheTtl;
+
+    /**
      * @var string
      */
     private $projectDir;
 
     /**
-     * FeedRequestCache constructor.
+     * InstagramRequestCache constructor.
+     * @param Filesystem $fs
+     * @param int $cacheTtl
+     * @param string $projectDir
      */
-    public function __construct(Filesystem $fs, string $projectDir)
+    public function __construct(Filesystem $fs, int $cacheTtl, string $projectDir)
     {
         $this->fs = $fs;
+        $this->cacheTtl = $cacheTtl;
         $this->projectDir = $projectDir;
     }
 
@@ -48,7 +57,7 @@ class InstagramRequestCache
      */
     public function getCacheTtl(): int
     {
-        return 84600 * 365; // 1 year
+        return $this->cacheTtl;
     }
 
     /**

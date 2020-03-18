@@ -43,6 +43,19 @@ You can do that by dumping the variables inside `mod_cfg_instagram.html5` templa
 ```
 
 
+## Cache configuration
+
+By default the Instagram data is cached for 1 hour. You can change it by adding the below configuration to your
+`config/config.yml` (or `app/config/config.yml` for Contao 4.4) file:
+
+```yaml
+codefog_instagram:
+    cache_ttl: 1800 # in seconds
+``` 
+
+Afterwards you may need to rebuild the app cache, e.g. using Contao Manager!
+
+
 ## Data restrictions
 
 Before you report any bugs regarding the missing Instagram feed data, be sure that you have read the official

@@ -12,6 +12,7 @@ services:
         public: true
         arguments:
             - "@filesystem"
+            - ~ # cache_ttl to be set in extension class
             - "%kernel.project_dir%"
 
     Codefog\InstagramBundle\Controller\InstagramController:
