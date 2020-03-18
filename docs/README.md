@@ -46,7 +46,7 @@ You can do that by dumping the variables inside `mod_cfg_instagram.html5` templa
 ## Cache configuration
 
 By default the Instagram data is cached for 1 hour. You can change it by adding the below configuration to your
-`config/config.yml` file:
+`config/config.yml` (or `app/config/config.yml` for Contao 4.4) file:
 
 ```yaml
 codefog_instagram:
