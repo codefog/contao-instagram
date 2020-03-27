@@ -13,7 +13,15 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder('codefog_instagram');
-        $treeBuilder->getRootNode()
+
+        if (\method_exists($treeBuilder, 'getRootNode')) {
+            $rootNode = $treeBuilder->getRootNode();
+        } else {
+            // Backwards compatibility
+            $rootNode = $treeBuilder->root('codefog_instagram');
+        }
+
+        $rootNode
             ->children()
                 ->integerNode('cache_ttl')->defaultValue(3600)->end()
             ->end()
