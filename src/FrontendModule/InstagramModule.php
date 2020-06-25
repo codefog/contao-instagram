@@ -121,6 +121,12 @@ class InstagramModule extends Module
      */
     protected function getFeedItems(): array
     {
+        if (($token = $this->client->refreshAccessToken($this->cfg_instagramAccessToken)) !== null) {
+            $this->cfg_instagramAccessToken = $token;
+            $this->objModel->cfg_instagramAccessToken = $token;
+            $this->objModel->save();
+        }
+
         $response = $this->client->getMediaData($this->cfg_instagramAccessToken, (int) $this->id);
 
         if (null === $response) {
