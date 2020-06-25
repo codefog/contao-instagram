@@ -161,6 +161,39 @@ class InstagramClient
     }
 
     /**
+     * Refresh the access token.
+     */
+    public function refreshAccessToken(string $token): ?string
+    {
+        try {
+            $response = $this->getClient()->get('https://graph.instagram.com/refresh_access_token', [
+                'query' => [
+                    'grant_type' => 'ig_refresh_token',
+                    'access_token' => $token,
+                ],
+            ]);
+        } catch (ClientException | ServerException $e) {
+            if (null !== $this->logger) {
+                $this->logger->error(sprintf('Unable to refresh the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            }
+
+            return null;
+        }
+
+        $data = json_decode($response->getBody(), true);
+
+        if (!\is_array($data) || JSON_ERROR_NONE !== json_last_error()) {
+            if (null !== $this->logger) {
+                $this->logger->error(sprintf('Unable to refresh the Instagram access token: %s', json_last_error_msg()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            }
+
+            return null;
+        }
+
+        return $data['access_token'];
+    }
+
+    /**
      * Get the access token.
      */
     public function getAccessToken(string $appId, string $appSecret, string $code, string $redirectUri): ?string
