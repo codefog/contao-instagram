@@ -93,7 +93,7 @@ class InstagramClient
     {
         return $this->getData('https://graph.instagram.com/me/media', [
             'access_token' => $accessToken,
-            'fields' => 'id,caption,media_type,media_url,permalink,timestamp',
+            'fields' => 'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp',
         ], $moduleId, $cache);
     }
 
