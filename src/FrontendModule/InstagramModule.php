@@ -107,7 +107,7 @@ class InstagramModule extends Module
      */
     protected function getUserData(): array
     {
-        $response = $this->client->getUserData($this->cfg_instagramAccessToken, (int) $this->id);
+        $response = $this->client->getUserData($this->cfg_instagramAccessToken, (int) $this->id, true, (bool) $this->cfg_skipSslVerification);
 
         if (null === $response) {
             return [];
@@ -127,7 +127,7 @@ class InstagramModule extends Module
             $this->objModel->save();
         }
 
-        $response = $this->client->getMediaData($this->cfg_instagramAccessToken, (int) $this->id);
+        $response = $this->client->getMediaData($this->cfg_instagramAccessToken, (int) $this->id, true, (bool) $this->cfg_skipSslVerification);
 
         if (null === $response) {
             return [];
@@ -137,7 +137,7 @@ class InstagramModule extends Module
 
         // Store the files locally
         if ($this->cfg_instagramStoreFiles) {
-            $data = $this->client->storeMediaFiles($this->cfg_instagramStoreFolder, $data);
+            $data = $this->client->storeMediaFiles($this->cfg_instagramStoreFolder, $data, (bool) $this->cfg_skipSslVerification);
         }
 
         // Limit the number of items
