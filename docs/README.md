@@ -66,6 +66,15 @@ documentation that contains information about the data you can obtain from the A
 > As of version 2.0 of the extension and changes in Instagram API, it is no longer possible to filter media files
 > by a #hashtag. This option has been dropped in version 2.0.0 of the extension.
 
-## About errors
 
-If at some point the extension does not work make sure to check the system logs.
+## Troubleshooting
+
+If at some point the extension does not work make sure to check the system logs. Please open an issue on Github
+if your error is not listed below.
+
+### cURL error 3: <url> malformed 
+
+This error can happen occasionally and cause the feed to appear and disappear from the page (see #22). It is likely 
+caused by SSL verification failure. To fix this problem, you should contact your hosting provider. Another solution 
+would be to skip SSL verification in the frontend module settings (not recommended).
+

@@ -97,7 +97,8 @@ class InstagramController
             $module['cfg_instagramAppId'],
             $module['cfg_instagramAppSecret'],
             $code,
-            $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL)
+            $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
+            (bool) $module['cfg_skipSslVerification']
         );
 
         if (null === $accessToken) {
@@ -105,12 +106,12 @@ class InstagramController
         }
 
         // Get the user and media data
-        $this->client->getUserData($accessToken, (int) $module['id'], false);
-        $mediaData = $this->client->getMediaData($accessToken, (int) $module['id'], false);
+        $this->client->getUserData($accessToken, (int) $module['id'], false, (bool) $module['cfg_skipSslVerification']);
+        $mediaData = $this->client->getMediaData($accessToken, (int) $module['id'], false, (bool) $module['cfg_skipSslVerification']);
 
         // Optionally store the media data locally
         if ($module['cfg_instagramStoreFiles'] && null !== $mediaData) {
-            $this->client->storeMediaFiles($module['cfg_instagramStoreFolder'], $mediaData);
+            $this->client->storeMediaFiles($module['cfg_instagramStoreFolder'], $mediaData, (bool) $module['cfg_skipSslVerification']);
         }
 
         // Store the access token and remove temporary session key
