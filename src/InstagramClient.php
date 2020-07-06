@@ -57,14 +57,14 @@ class InstagramClient
     /**
      * Get the data from Instagram.
      */
-    public function getData(string $url, array $query = [], int $moduleId = null, bool $cache = true): ?array
+    public function getData(string $url, array $query = [], int $moduleId = null, bool $cache = true, bool $skipSslVerification = false): ?array
     {
         if (!$cache) {
             $this->cache->purge($this->cache->getCacheDir($moduleId));
         }
 
         try {
-            $response = $this->getCachedClient($moduleId)->get($url, ['query' => $query]);
+            $response = $this->getCachedClient($moduleId)->get($url, ['query' => $query, 'verify' => !$skipSslVerification]);
         } catch (ClientException | ServerException $e) {
             if (null !== $this->logger) {
                 $this->logger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
@@ -89,23 +89,23 @@ class InstagramClient
     /**
      * Get the media data.
      */
-    public function getMediaData(string $accessToken, int $moduleId = null, bool $cache = true): ?array
+    public function getMediaData(string $accessToken, int $moduleId = null, bool $cache = true, bool $skipSslVerification = false): ?array
     {
         return $this->getData('https://graph.instagram.com/me/media', [
             'access_token' => $accessToken,
             'fields' => 'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp',
-        ], $moduleId, $cache);
+        ], $moduleId, $cache, $skipSslVerification);
     }
 
     /**
      * Get the user data.
      */
-    public function getUserData(string $accessToken, int $moduleId = null, bool $cache = true): ?array
+    public function getUserData(string $accessToken, int $moduleId = null, bool $cache = true, bool $skipSslVerification = false): ?array
     {
         return $this->getData('https://graph.instagram.com/me', [
             'access_token' => $accessToken,
             'fields' => 'id,username',
-        ], $moduleId, $cache);
+        ], $moduleId, $cache, $skipSslVerification);
     }
 
     /**
@@ -113,7 +113,7 @@ class InstagramClient
      *
      * @throws \RuntimeException
      */
-    public function storeMediaFiles(string $targetUuid, array $data): array
+    public function storeMediaFiles(string $targetUuid, array $data, bool $skipSslVerification = false): array
     {
         $this->framework->initialize();
 
@@ -137,7 +137,7 @@ class InstagramClient
             // Download the image
             if (!$file->exists()) {
                 try {
-                    $response = $this->getClient()->get($item['media_url']);
+                    $response = $this->getClient()->get($item['media_url'], ['verify' => !$skipSslVerification]);
                 } catch (ClientException | ServerException $e) {
                     if (null !== $this->logger) {
                         $this->logger->error(sprintf('Unable to fetch Instagram image from "%s": %s', $item['media_url'], $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
@@ -196,13 +196,13 @@ class InstagramClient
     /**
      * Get the access token.
      */
-    public function getAccessToken(string $appId, string $appSecret, string $code, string $redirectUri): ?string
+    public function getAccessToken(string $appId, string $appSecret, string $code, string $redirectUri, bool $skipSslVerification = false): ?string
     {
-        if (($token = $this->getShortLivedAccessToken($appId, $appSecret, $code, $redirectUri)) === null) {
+        if (($token = $this->getShortLivedAccessToken($appId, $appSecret, $code, $redirectUri, $skipSslVerification)) === null) {
             return null;
         }
 
-        return $this->getLongLivedAccessToken($token, $appSecret);
+        return $this->getLongLivedAccessToken($token, $appSecret, $skipSslVerification);
     }
 
     /**
@@ -210,10 +210,11 @@ class InstagramClient
      *
      * @return string
      */
-    private function getShortLivedAccessToken(string $appId, string $appSecret, string $code, string $redirectUri): ?string
+    private function getShortLivedAccessToken(string $appId, string $appSecret, string $code, string $redirectUri, bool $skipSslVerification = false): ?string
     {
         try {
             $response = $this->getClient()->post('https://api.instagram.com/oauth/access_token', [
+                'verify' => !$skipSslVerification,
                 'form_params' => [
                     'app_id' => $appId,
                     'app_secret' => $appSecret,
@@ -248,10 +249,11 @@ class InstagramClient
      *
      * @return string
      */
-    private function getLongLivedAccessToken(string $token, string $appSecret): ?string
+    private function getLongLivedAccessToken(string $token, string $appSecret, bool $skipSslVerification = false): ?string
     {
         try {
             $response = $this->getClient()->get('https://graph.instagram.com/access_token', [
+                'verify' => !$skipSslVerification,
                 'query' => [
                     'grant_type' => 'ig_exchange_token',
                     'client_secret' => $appSecret,
