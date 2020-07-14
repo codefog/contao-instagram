@@ -127,20 +127,28 @@ class InstagramClient
         }
 
         foreach ($data as &$item) {
-            if ('IMAGE' !== $item['media_type']) {
-                continue;
+            switch ($item['media_type']) {
+                case 'IMAGE':
+                case 'CAROUSEL_ALBUM':
+                    $url = $item['media_url'];
+                    break;
+                case 'VIDEO':
+                    $url = $item['thumbnail_url'];
+                    break;
+                default:
+                    continue 2;
             }
 
-            $extension = pathinfo(explode('?', $item['media_url'])[0], PATHINFO_EXTENSION);
+            $extension = pathinfo(explode('?', $url)[0], PATHINFO_EXTENSION);
             $file = new File(sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension));
 
             // Download the image
             if (!$file->exists()) {
                 try {
-                    $response = $this->getClient()->get($item['media_url'], ['verify' => !$skipSslVerification]);
+                    $response = $this->getClient()->get($url, ['verify' => !$skipSslVerification]);
                 } catch (ClientException | ServerException $e) {
                     if (null !== $this->logger) {
-                        $this->logger->error(sprintf('Unable to fetch Instagram image from "%s": %s', $item['media_url'], $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+                        $this->logger->error(sprintf('Unable to fetch Instagram image from "%s": %s', $url, $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
                     }
 
                     continue;

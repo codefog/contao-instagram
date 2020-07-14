@@ -8,7 +8,7 @@
             <?php if ($item['contao']['picture']): ?>
                 <?php $this->insert('picture_default', $item['contao']['picture']->picture) ?>
             <?php else: ?>
-                <img src="<?= $item['media_url'] ?>" alt="<?= \Contao\StringUtil::specialchars($item['caption']) ?>">
+                <img src="<?= $item['thumbnail_url'] ?? $item['media_url'] ?>" alt="<?= \Contao\StringUtil::specialchars($item['caption']) ?>">
             <?php endif; ?>
         </a>
     </div>
