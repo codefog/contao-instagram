@@ -26,6 +26,10 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},n
 /*
  * Add fields
  */
+$GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramAccessTokenTstamp'] = [
+    'sql' => "int(10) unsigned NOT NULL default '0'",
+];
+
 $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramAppId'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramAppId'],
     'exclude' => true,
