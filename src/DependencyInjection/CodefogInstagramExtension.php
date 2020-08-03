@@ -29,5 +29,6 @@ class CodefogInstagramExtension extends ConfigurableExtension
         $loader->load('services.yml');
 
         $container->getDefinition(InstagramRequestCache::class)->setArgument(1, (int) $mergedConfig['cache_ttl']);
+        $container->setParameter('instagram_access_token_ttl', (int) $mergedConfig['access_token_ttl']);
     }
 }

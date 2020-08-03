@@ -121,9 +121,16 @@ class InstagramModule extends Module
      */
     protected function getFeedItems(): array
     {
-        if (($token = $this->client->refreshAccessToken($this->cfg_instagramAccessToken)) !== null) {
+        $time = time();
+        $accessTokenTtl = System::getContainer()->getParameter('instagram_access_token_ttl');
+
+        // Refresh the token if it expired (according to local TTL value)
+        if (($time - $accessTokenTtl) > $this->cfg_instagramAccessTokenTstamp && ($token = $this->client->refreshAccessToken($this->cfg_instagramAccessToken)) !== null) {
             $this->cfg_instagramAccessToken = $token;
+            $this->cfg_instagramAccessTokenTstamp = $time;
+
             $this->objModel->cfg_instagramAccessToken = $token;
+            $this->objModel->cfg_instagramAccessTokenTstamp = $time;
             $this->objModel->save();
         }
 
