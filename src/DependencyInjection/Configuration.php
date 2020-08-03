@@ -23,6 +23,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->integerNode('access_token_ttl')->defaultValue(86400)->end()
                 ->integerNode('cache_ttl')->defaultValue(3600)->end()
             ->end()
         ;
