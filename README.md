@@ -21,10 +21,10 @@ Install the bundle via Composer:
 composer require codefog/contao-instagram
 ```
 
-## Documentation
+## we need some doucment
 
 [Read the documentation](docs/README.md)
 
 ## Copyright
 
-This project has been created and is maintained by [Codefog](https://codefog.pl).
+This master project has been created and maintained by [Codefog](https://codefog.pl).
