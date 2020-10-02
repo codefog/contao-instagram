@@ -13,7 +13,7 @@ the number of items displayed and comes up with a simple cache system.
 
 ![](docs/images/preview.png)
 
-## Installation
+## Installation of Bundle
 
 Install the bundle via Composer:
 
@@ -21,7 +21,7 @@ Install the bundle via Composer:
 composer require codefog/contao-instagram
 ```
 
-## Documentation
+## Documentation, read it carefully
 
 [Read the documentation](docs/README.md)
 
