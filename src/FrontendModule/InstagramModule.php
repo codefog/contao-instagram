@@ -16,9 +16,9 @@ use Codefog\InstagramBundle\InstagramClient;
 use Contao\BackendTemplate;
 use Contao\Controller;
 use Contao\FilesModel;
-use Contao\Model\Registry;
 use Contao\Module;
 use Contao\System;
+use Doctrine\DBAL\Connection;
 use Patchwork\Utf8;
 
 class InstagramModule extends Module
@@ -130,14 +130,7 @@ class InstagramModule extends Module
             $this->cfg_instagramAccessToken = $token;
             $this->cfg_instagramAccessTokenTstamp = $time;
 
-            // Make sure the model is registered before saving it (#33)
-            if (!Registry::getInstance()->isRegistered($this->objModel)) {
-                Registry::getInstance()->register($this->objModel);
-            }
-
-            $this->objModel->cfg_instagramAccessToken = $token;
-            $this->objModel->cfg_instagramAccessTokenTstamp = $time;
-            $this->objModel->save();
+            System::getContainer()->get(Connection::class)->update('tl_module', ['cfg_instagramAccessToken' => $token, 'cfg_instagramAccessTokenTstamp' => $time], ['id' => $this->objModel->id]);
         }
 
         $response = $this->client->getMediaData($this->cfg_instagramAccessToken, (int) $this->id, true, (bool) $this->cfg_skipSslVerification);
