@@ -129,9 +129,7 @@ class InstagramModule extends Module
             $this->cfg_instagramAccessToken = $token;
             $this->cfg_instagramAccessTokenTstamp = $time;
 
-            $this->objModel->cfg_instagramAccessToken = $token;
-            $this->objModel->cfg_instagramAccessTokenTstamp = $time;
-            $this->objModel->save();
+            System::getContainer()->get('database_connection')->update('tl_module', ['cfg_instagramAccessToken' => $token, 'cfg_instagramAccessTokenTstamp' => $time], ['id' => $this->objModel->id]);
         }
 
         $response = $this->client->getMediaData($this->cfg_instagramAccessToken, (int) $this->id, true, (bool) $this->cfg_skipSslVerification);
