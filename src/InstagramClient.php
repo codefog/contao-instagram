@@ -20,6 +20,7 @@ use Contao\StringUtil;
 use Doctrine\Common\Cache\FilesystemCache;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
@@ -65,7 +66,7 @@ class InstagramClient
 
         try {
             $response = $this->getCachedClient($moduleId)->get($url, ['query' => $query, 'verify' => !$skipSslVerification]);
-        } catch (ClientException | ServerException $e) {
+        } catch (ClientException | ConnectException | ServerException $e) {
             if (null !== $this->logger) {
                 $this->logger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
             }
@@ -146,7 +147,7 @@ class InstagramClient
             if (!$file->exists()) {
                 try {
                     $response = $this->getClient()->get($url, ['verify' => !$skipSslVerification]);
-                } catch (ClientException | ServerException $e) {
+                } catch (ClientException | ConnectException | ServerException $e) {
                     if (null !== $this->logger) {
                         $this->logger->error(sprintf('Unable to fetch Instagram image from "%s": %s', $url, $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
                     }
@@ -180,7 +181,7 @@ class InstagramClient
                     'access_token' => $token,
                 ],
             ]);
-        } catch (ClientException | ServerException $e) {
+        } catch (ClientException | ConnectException | ServerException $e) {
             if (null !== $this->logger) {
                 $this->logger->error(sprintf('Unable to refresh the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
             }
@@ -231,7 +232,7 @@ class InstagramClient
                     'code' => $code,
                 ],
             ]);
-        } catch (ClientException | ServerException $e) {
+        } catch (ClientException | ConnectException | ServerException $e) {
             if (null !== $this->logger) {
                 $this->logger->error(sprintf('Unable to fetch the Instagram short-lived access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
             }
@@ -268,7 +269,7 @@ class InstagramClient
                     'access_token' => $token,
                 ],
             ]);
-        } catch (ClientException | ServerException $e) {
+        } catch (ClientException | ConnectException | ServerException $e) {
             if (null !== $this->logger) {
                 $this->logger->error(sprintf('Unable to fetch the Instagram long-lived access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
             }
