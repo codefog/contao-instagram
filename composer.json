@@ -20,9 +20,9 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.1 || ^8.0",
         "ext-json": "*",
-        "contao/core-bundle": "^4.4",
+        "contao/core-bundle": "^4.9",
         "codefog/contao-haste": "^4.24",
         "guzzlehttp/guzzle": "~6.0",
         "kevinrob/guzzle-cache-middleware": "^3.2",
