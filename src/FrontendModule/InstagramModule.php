@@ -18,7 +18,6 @@ use Contao\Controller;
 use Contao\FilesModel;
 use Contao\Module;
 use Contao\System;
-use Patchwork\Utf8;
 
 class InstagramModule extends Module
 {
@@ -51,7 +50,7 @@ class InstagramModule extends Module
         if (TL_MODE === 'BE') {
             $template = new BackendTemplate('be_wildcard');
 
-            $template->wildcard = '### '.Utf8::strtoupper($GLOBALS['TL_LANG']['FMD']['cfg_instagram'][0]).' ###';
+            $template->wildcard = '### '.mb_strtoupper($GLOBALS['TL_LANG']['FMD']['cfg_instagram'][0]).' ###';
             $template->title = $this->headline;
             $template->id = $this->id;
             $template->link = $this->name;
