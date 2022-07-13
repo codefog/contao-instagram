@@ -140,6 +140,11 @@ class InstagramClient
                     continue 2;
             }
 
+            // Skip if the URL does not exist (#39)
+            if (!$url) {
+                continue;
+            }
+
             $extension = pathinfo(explode('?', $url)[0], PATHINFO_EXTENSION);
             $file = new File(sprintf('%s/%s.%s', $folderModel->path, $item['id'], $extension));
 
