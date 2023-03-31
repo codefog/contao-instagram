@@ -57,6 +57,11 @@ codefog_instagram:
 Afterwards you may need to rebuild the app cache, e.g. using Contao Manager!
 
 
+## Cron job
+
+As of version 2.0, there is a cron job that refreshes the access token once per day
+
+
 ## Data restrictions
 
 Before you report any bugs regarding the missing Instagram feed data, be sure that you have read the official

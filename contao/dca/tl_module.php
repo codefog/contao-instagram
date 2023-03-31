@@ -27,6 +27,7 @@ $GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},n
  * Add fields
  */
 $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramAccessTokenTstamp'] = [
+    'eval' => ['rgxp' => 'datim'],
     'sql' => "int(10) unsigned NOT NULL default '0'",
 ];
 
