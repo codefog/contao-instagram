@@ -31,7 +31,7 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
     public function getBundles(ParserInterface $parser): array
     {
         return [
-            BundleConfig::create(CodefogInstagramBundle::class)->setLoadAfter([ContaoCoreBundle::class, 'haste']),
+            BundleConfig::create(CodefogInstagramBundle::class)->setLoadAfter([ContaoCoreBundle::class]),
         ];
     }
 

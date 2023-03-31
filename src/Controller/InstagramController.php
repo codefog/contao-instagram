@@ -89,7 +89,7 @@ class InstagramController
         }
 
         // Module not found
-        if (false === ($module = $this->db->fetchAssoc('SELECT * FROM tl_module WHERE id=?', [$sessionData['moduleId']]))) {
+        if (false === ($module = $this->db->fetchAssociative('SELECT * FROM tl_module WHERE id=?', [$sessionData['moduleId']]))) {
             return new Response(Response::$statusTexts[Response::HTTP_BAD_REQUEST], Response::HTTP_BAD_REQUEST);
         }
 
