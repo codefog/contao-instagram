@@ -16,4 +16,8 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class CodefogInstagramBundle extends Bundle
 {
+    public function getPath()
+    {
+        return \dirname(__DIR__);
+    }
 }

@@ -20,17 +20,12 @@
         }
     ],
     "require": {
-        "php": "^7.1 || ^8.0",
+        "php": "^8.1",
         "ext-json": "*",
-        "contao/core-bundle": "^4.9",
-        "guzzlehttp/guzzle": "~6.0",
-        "kevinrob/guzzle-cache-middleware": "^3.2",
-        "doctrine/cache": "^1.9",
-        "doctrine/dbal": "^2.10 || ^3.0"
+        "contao/core-bundle": "^4.13"
     },
     "require-dev": {
-        "contao/manager-plugin": "^2.0",
-        "friendsofphp/php-cs-fixer": "^2.2"
+        "contao/manager-plugin": "^2.0"
     },
     "conflict": {
         "contao/manager-plugin": "<2.0 || >=3.0"
@@ -48,7 +43,8 @@
             "contao-components/installer": true,
             "ocramius/package-versions": true,
             "contao-community-alliance/composer-plugin": true,
-            "contao/manager-plugin": true
+            "contao/manager-plugin": true,
+            "php-http/discovery": true
         }
     }
 }
