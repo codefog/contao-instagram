@@ -21,3 +21,13 @@ $GLOBALS['TL_LANG']['tl_module']['cfg_instagramRequestToken'] = ['Request access
 $GLOBALS['TL_LANG']['tl_module']['cfg_skipSslVerification'] = ['Skip SSL verification', 'Skip the SSL verification during API requests (not recommended).'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramStoreFiles'] = ['Store Instagram files', 'Store the Instagram files on locally.'];
 $GLOBALS['TL_LANG']['tl_module']['cfg_instagramStoreFolder'] = ['Instagram store folder', 'Please choose the Instagram store folder.'];
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramMediaTypes'] = ['Instagram media types', 'Here you can choose the Instagram media types that should be shown.'];
+
+/**
+ * Reference types
+ */
+$GLOBALS['TL_LANG']['tl_module']['cfg_instagramMediaTypesRef'] = [
+    'CAROUSEL_ALBUM' => 'Carousel album',
+    'IMAGE' => 'Image',
+    'VIDEO' => 'Video',
+];

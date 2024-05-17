@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = [\Codefog\Ins
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['cfg_instagramStoreFiles'] = 'cfg_instagramStoreFolder,imgSize';
 
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'cfg_instagramStoreFiles';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramAppId,cfg_instagramAppSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,cfg_skipSslVerification,cfg_instagramStoreFiles;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramAppId,cfg_instagramAppSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,cfg_skipSslVerification,cfg_instagramStoreFiles,cfg_instagramMediaTypes;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 /*
  * Add fields
@@ -71,6 +71,16 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_skipSslVerification'] = [
     'inputType' => 'checkbox',
     'eval' => ['tl_class' => 'w50 m12'],
     'sql' => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramMediaTypes'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramMediaTypes'],
+    'exclude' => true,
+    'inputType' => 'checkbox',
+    'options' => ['IMAGE', 'VIDEO', 'CAROUSEL_ALBUM'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramMediaTypesRef'],
+    'eval' => ['mandatory' => true, 'multiple' => true, 'tl_class' => 'clr'],
+    'sql' => ['type' => 'string', 'length' => 255, 'default' => 'a:3:{i:0;s:5:"IMAGE";i:1;s:5:"VIDEO";i:2;s:14:"CAROUSEL_ALBUM";}'],
 ];
 
 $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramStoreFiles'] = [

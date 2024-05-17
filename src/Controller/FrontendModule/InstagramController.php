@@ -8,6 +8,7 @@ use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
 use Contao\CoreBundle\Image\Studio\Studio;
 use Contao\FilesModel;
 use Contao\ModuleModel;
+use Contao\StringUtil;
 use Contao\Template;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Filesystem\Path;
@@ -103,6 +104,13 @@ class InstagramController extends AbstractFrontendModuleController
         }
 
         $data = $response['data'];
+        $allowedMediaTypes = StringUtil::deserialize($moduleModel->cfg_instagramMediaTypes);
+
+        // Filter out the media types we don't want
+        if (is_array($allowedMediaTypes) && !empty($allowedMediaTypes)) {
+            $data = array_filter($data, static fn ($item) => in_array($item['media_type'], $allowedMediaTypes, true));
+            $data = array_values($data);
+        }
 
         // Store the files locally
         if ($moduleModel->cfg_instagramStoreFiles) {
