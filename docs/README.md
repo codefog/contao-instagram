@@ -57,6 +57,11 @@ codefog_instagram:
 Afterwards you may need to rebuild the app cache, e.g. using Contao Manager!
 
 
+## Cron job
+
+As of version 2.0, there is a cron job that refreshes the access token once per day
+
+
 ## Data restrictions
 
 Before you report any bugs regarding the missing Instagram feed data, be sure that you have read the official
@@ -79,3 +84,12 @@ This error can happen occasionally and cause the feed to appear and disappear fr
 caused by SSL verification failure. To fix this problem, you should contact your hosting provider. Another solution 
 would be to skip SSL verification in the frontend module settings (not recommended).
 
+### Error message: Insufficient developer role
+
+Go to `Facebook Developers > App Roles > Roles` and click the `Add Instagram Testers` button. 
+From the search list of the Instagram accounts, find your account you would like to connect.
+
+Then, log in to your Instagram account and go to the `Settings > Apps and websites > Tester Invites` and accept
+the invitation.
+
+After that, request the access token from within Contao once again.

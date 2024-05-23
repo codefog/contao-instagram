@@ -12,10 +12,9 @@
 
 namespace Codefog\InstagramBundle\DependencyInjection;
 
-use Codefog\InstagramBundle\InstagramRequestCache;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 class CodefogInstagramExtension extends ConfigurableExtension
@@ -25,10 +24,10 @@ class CodefogInstagramExtension extends ConfigurableExtension
      */
     protected function loadInternal(array $mergedConfig, ContainerBuilder $container)
     {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../config'));
+        $loader->load('services.php');
 
-        $container->getDefinition(InstagramRequestCache::class)->setArgument(1, (int) $mergedConfig['cache_ttl']);
+        $container->setParameter('instagram_cache_ttl', (int) $mergedConfig['cache_ttl']);
         $container->setParameter('instagram_access_token_ttl', (int) $mergedConfig['access_token_ttl']);
     }
 }
