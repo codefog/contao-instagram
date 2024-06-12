@@ -99,7 +99,7 @@ class InstagramController extends AbstractFrontendModuleController
 
         $response = $this->client->getMediaData($moduleModel->cfg_instagramAccessToken, (int) $moduleModel->id, true, (bool) $moduleModel->cfg_skipSslVerification);
 
-        if (null === $response || null === ($response['data'] ?? null)) {
+        if (empty($response['data']) {
             return [];
         }
 
