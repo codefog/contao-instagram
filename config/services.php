@@ -10,8 +10,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->defaults()
         ->autoconfigure()
         ->autowire()
-        ->bind('$accessTokenTtl', '%instagram_cache_ttl%')
-        ->bind('$cacheTtl', '%instagram_access_token_ttl%')
+        ->bind('$accessTokenTtl', '%instagram_access_token_ttl%')
+        ->bind('$cacheTtl', '%instagram_cache_ttl%')
         ->bind('$projectDir', '%kernel.project_dir%')
     ;
 
