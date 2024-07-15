@@ -14,14 +14,8 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('codefog_instagram');
 
-        if (\method_exists($treeBuilder, 'getRootNode')) {
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            // Backwards compatibility
-            $rootNode = $treeBuilder->root('codefog_instagram');
-        }
-
-        $rootNode
+        $treeBuilder
+            ->getRootNode()
             ->children()
                 ->integerNode('access_token_ttl')->defaultValue(86400)->end()
                 ->integerNode('cache_ttl')->defaultValue(3600)->end()

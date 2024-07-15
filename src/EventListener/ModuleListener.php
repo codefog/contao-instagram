@@ -16,30 +16,19 @@ use Contao\CoreBundle\Exception\RedirectResponseException;
 use Contao\DataContainer;
 use Contao\Environment;
 use Contao\Input;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 class ModuleListener
 {
-    const SESSION_KEY = 'instagram-module-id';
+    public const SESSION_KEY = 'instagram-module-id';
 
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
-     * ModuleListener constructor.
-     */
-    public function __construct(RouterInterface $router, SessionInterface $session)
+    public function __construct(
+        private readonly RouterInterface $router,
+        private readonly RequestStack $requestStack,
+    )
     {
-        $this->router = $router;
-        $this->session = $session;
     }
 
     /**
@@ -54,8 +43,6 @@ class ModuleListener
 
     /**
      * On the request token save.
-     *
-     * @return null
      */
     public function onRequestTokenSave()
     {
@@ -64,21 +51,20 @@ class ModuleListener
 
     /**
      * Request the Instagram access token.
-     *
-     * @param string $clientId
      */
-    private function requestAccessToken($clientId)
+    private function requestAccessToken(string $clientId): void
     {
-        $this->session->set(self::SESSION_KEY, [
+        $session = $this->requestStack->getSession();
+        $session->set(self::SESSION_KEY, [
             'moduleId' => Input::get('id'),
             'backUrl' => Environment::get('uri'),
         ]);
 
-        $this->session->save();
+        $session->save();
 
         $data = [
             'app_id' => $clientId,
-            'redirect_uri' => $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
+            'redirect_uri' => $this->router->generate('instagram_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'response_type' => 'code',
             'scope' => 'user_profile,user_media',
         ];

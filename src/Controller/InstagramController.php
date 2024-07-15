@@ -18,50 +18,24 @@ use Contao\BackendUser;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 #[Route('_instagram', defaults: ['_scope' => 'backend', '_token_check' => false])]
 class InstagramController
 {
-    /**
-     * @var InstagramClient
-     */
-    private $client;
-
-    /**
-     * @var Connection
-     */
-    private $db;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-
-    /**
-     * @var SessionInterface
-     */
-    private $session;
-
-    /**
-     * @var TokenStorageInterface
-     */
-    private $tokenStorage;
-
-    /**
-     * InstagramController constructor.
-     */
-    public function __construct(InstagramClient $client, Connection $db, RouterInterface $router, SessionInterface $session, TokenStorageInterface $tokenStorage)
+    public function __construct(
+        private readonly InstagramClient $client,
+        private readonly Connection $connection,
+        private readonly RequestStack $requestStack,
+        private readonly RouterInterface $router,
+        private readonly TokenStorageInterface $tokenStorage,
+    )
     {
-        $this->client = $client;
-        $this->db = $db;
-        $this->router = $router;
-        $this->session = $session;
-        $this->tokenStorage = $tokenStorage;
     }
 
     #[Route('/auth', name: 'instagram_auth', methods: ['GET'])]
@@ -77,7 +51,7 @@ class InstagramController
             return new Response(Response::$statusTexts[Response::HTTP_UNAUTHORIZED], Response::HTTP_UNAUTHORIZED);
         }
 
-        $sessionData = $this->session->get(ModuleListener::SESSION_KEY);
+        $sessionData = $this->requestStack->getSession()->get(ModuleListener::SESSION_KEY);
 
         // Module ID not found in session
         if (null === $sessionData || !isset($sessionData['moduleId'])) {
@@ -85,7 +59,7 @@ class InstagramController
         }
 
         // Module not found
-        if (false === ($module = $this->db->fetchAssociative('SELECT * FROM tl_module WHERE id=?', [$sessionData['moduleId']]))) {
+        if (false === ($module = $this->connection->fetchAssociative('SELECT * FROM tl_module WHERE id=?', [$sessionData['moduleId']]))) {
             return new Response(Response::$statusTexts[Response::HTTP_BAD_REQUEST], Response::HTTP_BAD_REQUEST);
         }
 
@@ -93,7 +67,7 @@ class InstagramController
             $module['cfg_instagramAppId'],
             $module['cfg_instagramAppSecret'],
             $code,
-            $this->router->generate('instagram_auth', [], RouterInterface::ABSOLUTE_URL),
+            $this->router->generate('instagram_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
             (bool) $module['cfg_skipSslVerification']
         );
 
@@ -111,8 +85,8 @@ class InstagramController
         }
 
         // Store the access token and remove temporary session key
-        $this->db->update('tl_module', ['cfg_instagramAccessToken' => $accessToken], ['id' => $sessionData['moduleId']]);
-        $this->session->remove(ModuleListener::SESSION_KEY);
+        $this->connection->update('tl_module', ['cfg_instagramAccessToken' => $accessToken], ['id' => $sessionData['moduleId']]);
+        $this->requestStack->getSession()->remove(ModuleListener::SESSION_KEY);
 
         return new RedirectResponse($sessionData['backUrl']);
     }

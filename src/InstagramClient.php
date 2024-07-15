@@ -13,11 +13,11 @@
 namespace Codefog\InstagramBundle;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
-use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\File;
 use Contao\FilesModel;
 use Contao\StringUtil;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
@@ -26,19 +26,15 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class InstagramClient
 {
-    private CacheInterface $appCache;
-    private int $cacheTtl;
-    private ContaoFramework $framework;
-    private HttpClientInterface $httpClient;
-    private LoggerInterface $contaoLogger;
-
-    public function __construct(CacheInterface $appCache, int $cacheTtl, ContaoFramework $framework, HttpClientInterface $httpClient, LoggerInterface $contaoLogger)
+    public function __construct(
+        private readonly CacheInterface $appCache,
+        private readonly ContaoFramework $framework,
+        private readonly HttpClientInterface $httpClient,
+        private readonly LoggerInterface $contaoLogger,
+        private readonly int $cacheTtl,
+        private readonly string $projectDir,
+    )
     {
-        $this->appCache = $appCache;
-        $this->cacheTtl = $cacheTtl;
-        $this->framework = $framework;
-        $this->httpClient = $httpClient;
-        $this->contaoLogger = $contaoLogger;
     }
 
     /**
@@ -56,7 +52,7 @@ class InstagramClient
             try {
                 return $this->httpClient->request('GET', $url, ['query' => $query, 'verify_host' => !$skipSslVerification, 'verify_peer' => !$skipSslVerification])->toArray();
             } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-                $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+                $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
                 $item->expiresAfter(0);
 
                 return null;
@@ -95,7 +91,7 @@ class InstagramClient
     {
         $this->framework->initialize();
 
-        if (null === ($folderModel = FilesModel::findByPk($targetUuid)) || !is_dir(TL_ROOT.'/'.$folderModel->path)) {
+        if (null === ($folderModel = FilesModel::findByPk($targetUuid)) || !is_dir(Path::join($this->projectDir, $folderModel->path))) {
             throw new \RuntimeException('The target folder does not exist');
         }
 
@@ -133,7 +129,7 @@ class InstagramClient
                         'verify_peer' => !$skipSslVerification,
                     ])->getContent();
                 } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-                    $this->contaoLogger->error(sprintf('Unable to fetch Instagram image from "%s": %s', $url, $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+                    $this->contaoLogger->error(sprintf('Unable to fetch Instagram image from "%s": %s', $url, $e->getMessage()));
 
                     continue;
                 }
@@ -165,7 +161,7 @@ class InstagramClient
                 ],
             ])->toArray();
         } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-            $this->contaoLogger->error(sprintf('Unable to refresh the Instagram access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            $this->contaoLogger->error(sprintf('Unable to refresh the Instagram access token: %s', $e->getMessage()));
 
             return null;
         }
@@ -187,8 +183,6 @@ class InstagramClient
 
     /**
      * Get the short lived access token
-     *
-     * @return string
      */
     private function getShortLivedAccessToken(string $appId, string $appSecret, string $code, string $redirectUri, bool $skipSslVerification = false): ?string
     {
@@ -205,7 +199,7 @@ class InstagramClient
                 ],
             ])->toArray();
         } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-            $this->contaoLogger->error(sprintf('Unable to fetch the Instagram short-lived access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            $this->contaoLogger->error(sprintf('Unable to fetch the Instagram short-lived access token: %s', $e->getMessage()));
 
             return null;
         }
@@ -215,8 +209,6 @@ class InstagramClient
 
     /**
      * Get the long lived access token
-     *
-     * @return string
      */
     private function getLongLivedAccessToken(string $token, string $appSecret, bool $skipSslVerification = false): ?string
     {
@@ -231,7 +223,7 @@ class InstagramClient
                 ],
             ])->toArray();
         } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-            $this->contaoLogger->error(sprintf('Unable to fetch the Instagram long-lived access token: %s', $e->getMessage()), ['contao' => new ContaoContext(__METHOD__, TL_ERROR)]);
+            $this->contaoLogger->error(sprintf('Unable to fetch the Instagram long-lived access token: %s', $e->getMessage()));
 
             return null;
         }

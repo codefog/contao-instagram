@@ -6,10 +6,10 @@ use Codefog\InstagramBundle\InstagramClient;
 use Contao\CoreBundle\Controller\FrontendModule\AbstractFrontendModuleController;
 use Contao\CoreBundle\DependencyInjection\Attribute\AsFrontendModule;
 use Contao\CoreBundle\Image\Studio\Studio;
+use Contao\CoreBundle\Twig\FragmentTemplate;
 use Contao\FilesModel;
 use Contao\ModuleModel;
 use Contao\StringUtil;
-use Contao\Template;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,7 @@ class InstagramController extends AbstractFrontendModuleController
     {
     }
 
-    protected function getResponse(Template $template, ModuleModel $model, Request $request): Response
+    protected function getResponse(FragmentTemplate $template, ModuleModel $model, Request $request): Response
     {
         if (!$model->cfg_instagramAccessToken || 0 === \count($items = $this->getFeedItems($model))) {
             return new Response();
