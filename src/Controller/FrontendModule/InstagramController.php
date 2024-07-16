@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-#[AsFrontendModule('cfg_instagram', category: 'application')]
+#[AsFrontendModule('cfg_instagram', category: 'application', template: 'mod_cfg_instagram')]
 class InstagramController extends AbstractFrontendModuleController
 {
     public function __construct(
