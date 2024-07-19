@@ -140,8 +140,8 @@ class InstagramClient
             }
 
             // Store the UUID in cache
-            if ($file->exists()) {
-                $item['contao']['uuid'] = StringUtil::binToUuid($file->getModel()->uuid);
+            if ($file->exists() && ($uuid = $file->getModel()?->uuid)) {
+                $item['contao']['uuid'] = StringUtil::binToUuid($uuid);
             }
         }
 
