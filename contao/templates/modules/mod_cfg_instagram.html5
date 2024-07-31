@@ -5,7 +5,7 @@
 <?php foreach ($this->items as $item): ?>
     <div class="item">
         <a href="<?= \Contao\StringUtil::specialchars($item['permalink']) ?>" target="_blank"<?php if ($item['caption']): ?> title="<?= \Contao\StringUtil::specialchars($item['caption']) ?>"<?php endif; ?>>
-            <?php if ($item['contao']['picture']): ?>
+            <?php if (isset($item['contao']['picture'])): ?>
                 <?php $this->insert('picture_default', $item['contao']['picture']->picture) ?>
             <?php else: ?>
                 <img src="<?= $item['thumbnail_url'] ?? $item['media_url'] ?>" alt="<?= \Contao\StringUtil::specialchars($item['caption']) ?>">
