@@ -2,10 +2,10 @@
 
 ## Create an Instagram app
 
-First of all you have to create the Instagram app. For that please follow the [official Getting Started guide](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started)
-up until point 3 (inclusive).
+First of all you have to create the Instagram app. For that please follow the [official Getting Started guide](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/create-a-meta-app-with-instagram)
+up until point 6 (inclusive).
 
-One important thing to note is that for all app URIs listed:
+Then, it is important to configure all app URIs, as described in Step 9:
 
 - Valid OAuth Redirect URIs
 - Deauthorize Callback URL
