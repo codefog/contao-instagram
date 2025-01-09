@@ -1,11 +1,15 @@
 # Instagram – Documentation
 
+## Prerequisites
+
+You must own an [Instagram business account](https://help.instagram.com/502981923235522) to be able to use this extension and display the feed on your website.
+
 ## Create an Instagram app
 
 First of all you have to create the Instagram app. For that please follow the [official Getting Started guide](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/create-a-meta-app-with-instagram)
 up until point 6 (inclusive).
 
-Then, it is important to configure all app URIs, as described in Step 9:
+Then, it is important to configure all app URIs, as described in Step 9 (Set up business login):
 
 - Valid OAuth Redirect URIs
 - Deauthorize Callback URL
