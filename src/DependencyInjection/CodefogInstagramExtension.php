@@ -22,7 +22,7 @@ class CodefogInstagramExtension extends ConfigurableExtension
     /**
      * @inheritDoc
      */
-    protected function loadInternal(array $mergedConfig, ContainerBuilder $container)
+    protected function loadInternal(array $mergedConfig, ContainerBuilder $container): void
     {
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../config'));
         $loader->load('services.php');
