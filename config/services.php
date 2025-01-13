@@ -18,6 +18,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services
         ->load('Codefog\\InstagramBundle\\', __DIR__ . '/../src')
         ->exclude(__DIR__ . '/../src/ContaoManager')
+        ->exclude(__DIR__ . '/../src/DependencyInjection')
         ->exclude(__DIR__ . '/../src/FrontendModule')
     ;
 
