@@ -83,6 +83,28 @@ class InstagramClient
     }
 
     /**
+     * Get the Comments for a Media Item
+     *
+     */
+    public function getCommentsForMedia(string $instagramAccessToken, string $mediaId, bool $skipSslVerification = false): ?array
+    {
+        $url = 'https://graph.instagram.com/'.$mediaId.'/comments';
+
+        $query = [
+            'access_token' => $instagramAccessToken,
+            'fields' => 'id,text,timestamp',
+        ];
+
+        try {
+            return $this->httpClient->request('GET', $url, ['query' => $query, 'verify_host' => !$skipSslVerification, 'verify_peer' => !$skipSslVerification])->toArray();
+        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
+            $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
+
+            return null;
+        }
+    }
+
+    /**
      * Store the media files locally.
      *
      * @throws \RuntimeException
