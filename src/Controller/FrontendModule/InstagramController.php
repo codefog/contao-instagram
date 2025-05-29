@@ -34,6 +34,13 @@ class InstagramController extends AbstractFrontendModuleController
             return new Response();
         }
 
+        // Fetch comments for the media items
+        foreach ($items as &$item) {
+            if (isset($item['id'])) {
+                $item['comments'] = $this->getCommentsForMedia($model->cfg_instagramAccessToken, $item['id']);
+            }
+        }
+
         $template->items = $this->generateItems($model, $items);
         $template->user = $this->getUserData($model);
 
@@ -123,5 +130,19 @@ class InstagramController extends AbstractFrontendModuleController
         }
 
         return $data;
+    }
+
+    /**
+     * Get comments for a media item.
+     */
+    protected function getCommentsForMedia(string $instagramAccessToken, string $mediaId): array
+    {
+        $response = $this->client->getCommentsForMedia($instagramAccessToken, $mediaId, false);
+
+        if (null === $response || empty($response['data'])) {
+            return [];
+        }
+
+        return $response['data'];
     }
 }
