@@ -86,7 +86,7 @@ class InstagramClient
      * Get the Comments for a Media Item
      *
      */
-    public function getCommentsForMedia(string $instagramAccessToken, string $mediaId, bool $skipSslVerification = false): ?array
+    public function getCommentsForMedia(string $instagramAccessToken, string $mediaId): ?array
     {
         $url = 'https://graph.instagram.com/'.$mediaId.'/comments';
 
@@ -96,7 +96,7 @@ class InstagramClient
         ];
 
         try {
-            return $this->httpClient->request('GET', $url, ['query' => $query, 'verify_host' => !$skipSslVerification, 'verify_peer' => !$skipSslVerification])->toArray();
+            return $this->httpClient->request('GET', $url, ['query' => $query])->toArray();
         } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
             $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
 
