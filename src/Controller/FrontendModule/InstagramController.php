@@ -143,6 +143,10 @@ class InstagramController extends AbstractFrontendModuleController
             return [];
         }
 
+        foreach ($response['data']  as &$comment ) {
+            $comment = $this->client->getDetailsForComment($instagramAccessToken, $comment['id']);
+        }
+        
         return $response['data'];
     }
 }
