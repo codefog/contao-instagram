@@ -139,7 +139,7 @@ class InstagramController extends AbstractFrontendModuleController
     {
         $response = $this->client->getCommentsForMedia($instagramAccessToken, $mediaId, false);
 
-        if (null === $response || empty($response['data'])) {
+        if (empty($response['data'])) {
             return [];
         }
 
