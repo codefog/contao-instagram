@@ -67,7 +67,7 @@ class InstagramClient
     {
         return $this->getData('https://graph.instagram.com/me/media', [
             'access_token' => $accessToken,
-            'fields' => 'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp',
+            'fields' => 'id,caption,media_type,media_url,like_count,permalink,thumbnail_url,timestamp',
         ], $moduleId, $cache, $skipSslVerification);
     }
 
@@ -80,6 +80,48 @@ class InstagramClient
             'access_token' => $accessToken,
             'fields' => 'id,username',
         ], $moduleId, $cache, $skipSslVerification);
+    }
+
+    /**
+     * Get the Comments for a Media Item
+     *
+     */
+    public function getCommentsForMedia(string $instagramAccessToken, string $mediaId): ?array
+    {
+        $url = 'https://graph.instagram.com/'.$mediaId.'/comments';
+
+        $query = [
+            'access_token' => $instagramAccessToken,
+            'fields' => 'id,text,timestamp',
+        ];
+
+        try {
+            return $this->httpClient->request('GET', $url, ['query' => $query])->toArray();
+        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
+            $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
+
+            return null;
+        }
+    }
+
+    /**
+     * Get Details for a Comment
+     */
+    public function getDetailsForComment(string $instagramAccessToken, string $commentId): ?array
+    {
+        $url = 'https://graph.instagram.com/'.$commentId;
+        $query = [
+            'access_token' => $instagramAccessToken,
+            'fields' => 'id,parent_id,from,text,like_count,hidden,timestamp',
+        ];
+
+        try {
+            return $this->httpClient->request('GET', $url, ['query' => $query])->toArray();
+        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
+            $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
+
+            return null;
+        }
     }
 
     /**
