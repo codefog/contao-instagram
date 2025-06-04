@@ -42,11 +42,13 @@ class InstagramClient
      */
     public function getData(string $url, array $query = [], int $moduleId = null, bool $cache = true, bool $skipSslVerification = false): ?array
     {
+        $cacheKey = md5($url . '_' . ($moduleId ?? '0'));
+
         if (!$cache) {
-            $this->appCache->delete($moduleId);
+            $this->appCache->delete($cacheKey);
         }
 
-        return $this->appCache->get($moduleId, function (ItemInterface $item) use ($url, $query, $skipSslVerification) {
+        return $this->appCache->get($cacheKey, function (ItemInterface $item) use ($url, $query, $skipSslVerification) {
             $item->expiresAfter($this->cacheTtl);
 
             try {
@@ -84,44 +86,24 @@ class InstagramClient
 
     /**
      * Get the Comments for a Media Item
-     *
      */
-    public function getCommentsForMedia(string $instagramAccessToken, string $mediaId): ?array
+    public function getCommentsForMedia(string $instagramAccessToken, string $mediaId, int $moduleId = null, bool $cache = true, bool $skipSslVerification = false): ?array
     {
-        $url = 'https://graph.instagram.com/'.$mediaId.'/comments';
-
-        $query = [
+        return $this->getData(sprintf('https://graph.instagram.com/%s/comments', $mediaId), [
             'access_token' => $instagramAccessToken,
             'fields' => 'id,text,timestamp',
-        ];
-
-        try {
-            return $this->httpClient->request('GET', $url, ['query' => $query])->toArray();
-        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-            $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
-
-            return null;
-        }
+        ], $moduleId, $cache, $skipSslVerification);
     }
 
     /**
      * Get Details for a Comment
      */
-    public function getDetailsForComment(string $instagramAccessToken, string $commentId): ?array
+    public function getDetailsForComment(string $instagramAccessToken, string $commentId, int $moduleId = null, bool $cache = true, bool $skipSslVerification = false): ?array
     {
-        $url = 'https://graph.instagram.com/'.$commentId;
-        $query = [
+        return $this->getData( sprintf('https://graph.instagram.com/%s', $commentId), [
             'access_token' => $instagramAccessToken,
             'fields' => 'id,parent_id,from,text,like_count,hidden,timestamp',
-        ];
-
-        try {
-            return $this->httpClient->request('GET', $url, ['query' => $query])->toArray();
-        } catch (TransportExceptionInterface | HttpExceptionInterface $e) {
-            $this->contaoLogger->error(sprintf('Unable to fetch Instagram data from "%s": %s', $url, $e->getMessage()));
-
-            return null;
-        }
+        ], $moduleId, $cache, $skipSslVerification);
     }
 
     /**

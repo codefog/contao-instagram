@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_module']['config']['onsubmit_callback'][] = [\Codefog\Ins
 $GLOBALS['TL_DCA']['tl_module']['subpalettes']['cfg_instagramStoreFiles'] = 'cfg_instagramStoreFolder,imgSize';
 
 $GLOBALS['TL_DCA']['tl_module']['palettes']['__selector__'][] = 'cfg_instagramStoreFiles';
-$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramAppId,cfg_instagramAppSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,cfg_skipSslVerification,cfg_instagramMediaTypes,cfg_instagramStoreFiles;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
+$GLOBALS['TL_DCA']['tl_module']['palettes']['cfg_instagram'] = '{title_legend},name,headline,type;{config_legend},cfg_instagramAppId,cfg_instagramAppSecret,cfg_instagramAccessToken,cfg_instagramRequestToken,numberOfItems,cfg_skipSslVerification,cfg_instagramFetchComments,cfg_instagramMediaTypes,cfg_instagramStoreFiles;{template_legend:hide},customTpl;{protected_legend:hide},protected;{expert_legend:hide},guests,cssID,space';
 
 /*
  * Add fields
@@ -70,6 +70,14 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_skipSslVerification'] = [
     'exclude' => true,
     'inputType' => 'checkbox',
     'eval' => ['tl_class' => 'w50 m12'],
+    'sql' => "char(1) NOT NULL default ''",
+];
+
+$GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramFetchComments'] = [
+    'label' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramFetchComments'],
+    'exclude' => true,
+    'inputType' => 'checkbox',
+    'eval' => ['tl_class' => 'clr'],
     'sql' => "char(1) NOT NULL default ''",
 ];
 

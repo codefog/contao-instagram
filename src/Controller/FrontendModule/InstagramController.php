@@ -34,13 +34,6 @@ class InstagramController extends AbstractFrontendModuleController
             return new Response();
         }
 
-        // Fetch comments for the media items
-        foreach ($items as &$item) {
-            if (isset($item['id'])) {
-                $item['comments'] = $this->getCommentsForMedia($model->cfg_instagramAccessToken, $item['id']);
-            }
-        }
-
         $template->items = $this->generateItems($model, $items);
         $template->user = $this->getUserData($model);
 
@@ -53,6 +46,11 @@ class InstagramController extends AbstractFrontendModuleController
     protected function generateItems(ModuleModel $moduleModel, array $items): array
     {
         foreach ($items as &$item) {
+            // Fetch the comments
+            if (isset($item['id'])) {
+                $item['comments'] = $this->getCommentsForMedia($moduleModel, $item['id']);
+            }
+
             // Skip the items that are not local Contao files
             if (!isset($item['contao']['uuid'])
                 || null === ($fileModel = FilesModel::findByPk($item['contao']['uuid']))
@@ -135,18 +133,22 @@ class InstagramController extends AbstractFrontendModuleController
     /**
      * Get comments for a media item.
      */
-    protected function getCommentsForMedia(string $instagramAccessToken, string $mediaId): array
+    protected function getCommentsForMedia(ModuleModel $moduleModel, string $mediaId): array
     {
-        $response = $this->client->getCommentsForMedia($instagramAccessToken, $mediaId, false);
+        if (!$moduleModel->cfg_instagramFetchComments) {
+            return [];
+        }
+
+        $response = $this->client->getCommentsForMedia($moduleModel->cfg_instagramAccessToken, $mediaId, (int) $moduleModel->id, true, (bool) $moduleModel->cfg_skipSslVerification);
 
         if (empty($response['data'])) {
             return [];
         }
 
-        foreach ($response['data']  as &$comment ) {
-            $comment = $this->client->getDetailsForComment($instagramAccessToken, $comment['id']);
+        foreach ($response['data'] as &$comment) {
+            $comment = $this->client->getDetailsForComment($moduleModel->cfg_instagramAccessToken, $comment['id'], (int) $moduleModel->id, true, (bool) $moduleModel->cfg_skipSslVerification);
         }
-        
+
         return $response['data'];
     }
 }
