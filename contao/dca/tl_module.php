@@ -51,7 +51,7 @@ $GLOBALS['TL_DCA']['tl_module']['fields']['cfg_instagramAccessToken'] = [
     'label' => &$GLOBALS['TL_LANG']['tl_module']['cfg_instagramAccessToken'],
     'exclude' => true,
     'inputType' => 'text',
-    'eval' => ['readonly' => true, 'tl_class' => 'w50'],
+    'eval' => ['readonly' => false, 'tl_class' => 'w50'],
     'sql' => "varchar(255) NOT NULL default ''",
 ];
 
