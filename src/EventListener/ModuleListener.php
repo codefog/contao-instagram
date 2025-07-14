@@ -66,7 +66,7 @@ class ModuleListener
             'app_id' => $clientId,
             'redirect_uri' => $this->router->generate('instagram_auth', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'response_type' => 'code',
-            'scope' => 'instagram_business_basic,instagram_manage_comments',
+            'scope' => 'instagram_business_basic,instagram_business_manage_comments',
         ];
 
         throw new RedirectResponseException('https://api.instagram.com/oauth/authorize/?'.http_build_query($data));
